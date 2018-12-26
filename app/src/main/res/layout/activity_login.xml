@@ -9,111 +9,147 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/index"
+
       >
-     <TextView
-         android:id="@+id/kanban"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:text="看板编号"
-         android:layout_margin="10dp"
-         android:textSize="20dp"
-         />
+
+     <RelativeLayout
+         android:id="@+id/rl2"
+         android:layout_width="match_parent"
+         android:layout_height="200dp"
+         android:layout_marginBottom="0dp"
+         android:background="#6495ED"
+         >
+
+      <TextView
+          android:id="@+id/kanban"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignRight="@id/nexTV"
+          android:layout_marginTop="15dp"
+          android:text="看板编号:"
+          android:textSize="20dp" />
+
       <EditText
           android:id="@+id/kanbanno"
           android:layout_width="180dp"
           android:layout_height="45dp"
-          android:text="helloworld"
+          android:layout_alignBottom="@id/kanban"
           android:layout_toRightOf="@id/kanban"
+          android:text="helloworld" />
+
+      <Button
+          android:id="@+id/scanbtn"
+          android:layout_width="15dp"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@id/kanbanno"
+          android:text="扫描"
+
+
           />
-       <Button
-           android:id="@+id/scanbtn"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:text="扫描"
-           android:layout_toRightOf="@id/kanbanno"
-           />
-        <TextView
-            android:id="@+id/cuTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="当前扫描点"
-            android:layout_margin="10dp"
-            android:layout_below="@id/kanban"
-            android:textSize="20dp"
-            />
-        <TextView
-            android:id="@+id/cutv2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="下料"
-            android:layout_toRightOf="@id/cuTV"
-            android:layout_below="@id/kanbanno"
-            android:textSize="20dp"
-            android:layout_margin="10dp"
 
-            />
-        <TextView
-            android:id="@+id/nexTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="下一扫描点"
-            android:layout_margin="10dp"
-            android:layout_below="@id/cuTV"
-            android:textSize="20dp"
-            />
-        <Button
-            android:id="@+id/startBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="开工"
-            android:layout_below="@id/nexTV"
-            android:layout_alignLeft="@id/nexTV"
+      <TextView
+          android:id="@+id/cuTV"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/kanban"
+          android:layout_marginLeft="15dp"
+          android:layout_marginTop="15dp"
+          android:text="当前扫描点:"
+          android:textSize="20dp" />
 
-            />
-        <Button
-            android:id="@+id/submitBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="提交"
-            android:layout_below="@id/nexTV"
-            android:layout_toRightOf="@id/startBtn"
-            />
-        <Button
-            android:id="@+id/waitBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="待回收"
-            android:layout_below="@id/nexTV"
-            android:layout_toRightOf="@id/submitBtn"
+      <TextView
+          android:id="@+id/cutv2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBottom="@id/cuTV"
+          android:layout_alignLeft="@id/kanbanno"
+          android:layout_toRightOf="@id/cuTV"
+          android:text="下料"
+          android:textSize="20dp" />
 
-            />
-        <Button
-            android:id="@+id/recycleBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="回收"
-            android:layout_below="@id/nexTV"
-            android:layout_toRightOf="@id/waitBtn"
-            />
+      <TextView
+          android:id="@+id/nexTV"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/cuTV"
+          android:layout_marginLeft="15dp"
+          android:layout_marginTop="15dp"
+          android:text="下一扫描点:"
+          android:textSize="20dp" />
+
+      <Button
+          android:id="@+id/startBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignLeft="@id/nexTV"
+          android:layout_below="@id/nexTV"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="5dp"
+          android:layout_marginTop="10dp"
+          android:background="	#7CFC00"
+          android:text="开工"
+
+          />
+
+      <Button
+          android:id="@+id/submitBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/nexTV"
+          android:layout_marginRight="5dp"
+          android:layout_marginTop="10dp"
+          android:layout_toRightOf="@id/startBtn"
+          android:background="#7CCD7C"
+          android:text="提交" />
+
+      <Button
+          android:id="@+id/waitBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/nexTV"
+          android:layout_marginTop="10dp"
+          android:layout_toRightOf="@id/submitBtn"
+          android:background="#7AC5CD"
+          android:text="待回收"
+          />
+
+      <Button
+          android:id="@+id/recycleBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/nexTV"
+          android:layout_marginLeft="5dp"
+          android:layout_marginTop="10dp"
+          android:layout_toRightOf="@id/waitBtn"
+          android:background="#9AC0CD"
+          android:text="回收"
+
+          />
 
 
-        <TextView
-             android:id="@+id/scanTable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="仓库入库"
-            android:layout_toRightOf="@id/nexTV"
-            android:layout_below="@id/cutv2"
-            android:textSize="20dp"
-            android:layout_margin="10dp"
+      <TextView
+          android:id="@+id/instock"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBottom="@id/nexTV"
+          android:layout_alignLeft="@id/kanbanno"
+          android:layout_toRightOf="@id/nexTV"
+          android:text="仓库入库"
+          android:textSize="20dp"
 
-            />
+          />
+
+     </RelativeLayout>
+
         <com.bin.david.form.core.SmartTable
+            android:id="@+id/scanTable"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_below="@id/submitBtn"
-            android:layout_marginTop="20dp"
+            android:layout_height="match_parent"
+            android:layout_below="@id/rl2"
+
+            android:background="#FFF8DC"
             />
 
     </RelativeLayout>
