@@ -11,43 +11,110 @@
         android:layout_height="match_parent"
         android:background="@mipmap/index"
       >
-
+     <TextView
+         android:id="@+id/kanban"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="看板编号"
+         android:layout_margin="10dp"
+         android:textSize="20dp"
+         />
+      <EditText
+          android:id="@+id/kanbanno"
+          android:layout_width="180dp"
+          android:layout_height="45dp"
+          android:text="helloworld"
+          android:layout_toRightOf="@id/kanban"
+          />
+       <Button
+           android:id="@+id/scanbtn"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="扫描"
+           android:layout_toRightOf="@id/kanbanno"
+           />
         <TextView
-            android:id="@+id/login"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="15sp"
-            android:text="扫描登陆"
-            android:layout_alignLeft="@id/loginInfo"
-            android:textColor="#ffffff"
-            android:textSize="20sp"
-
-
-            />
-
-        <EditText
-            android:id="@+id/loginInfo"
-            android:layout_width="300dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="110dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/edit_background"
-            android:inputType="textPassword"
-            android:singleLine="true" />
-
-        <Button
-            android:id="@+id/loginBtn"
+            android:id="@+id/cuTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_below="@id/loginInfo"
-            android:layout_marginTop="20dp"
-            android:layout_centerInParent="true"
-            android:text="登陆" />
+            android:text="当前扫描点"
+            android:layout_margin="10dp"
+            android:layout_below="@id/kanban"
+            android:textSize="20dp"
+            />
+        <TextView
+            android:id="@+id/cutv2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下料"
+            android:layout_toRightOf="@id/cuTV"
+            android:layout_below="@id/kanbanno"
+            android:textSize="20dp"
+            android:layout_margin="10dp"
 
+            />
+        <TextView
+            android:id="@+id/nexTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一扫描点"
+            android:layout_margin="10dp"
+            android:layout_below="@id/cuTV"
+            android:textSize="20dp"
+            />
+        <Button
+            android:id="@+id/startBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开工"
+            android:layout_below="@id/nexTV"
+            android:layout_alignLeft="@id/nexTV"
+
+            />
+        <Button
+            android:id="@+id/submitBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="提交"
+            android:layout_below="@id/nexTV"
+            android:layout_toRightOf="@id/startBtn"
+            />
+        <Button
+            android:id="@+id/waitBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="待回收"
+            android:layout_below="@id/nexTV"
+            android:layout_toRightOf="@id/submitBtn"
+
+            />
+        <Button
+            android:id="@+id/recycleBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="回收"
+            android:layout_below="@id/nexTV"
+            android:layout_toRightOf="@id/waitBtn"
+            />
+
+
+        <TextView
+             android:id="@+id/scanTable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="仓库入库"
+            android:layout_toRightOf="@id/nexTV"
+            android:layout_below="@id/cutv2"
+            android:textSize="20dp"
+            android:layout_margin="10dp"
+
+            />
+        <com.bin.david.form.core.SmartTable
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/submitBtn"
+            android:layout_marginTop="20dp"
+            />
 
     </RelativeLayout>
 
