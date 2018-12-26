@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.yucren.myapplication.MainActivity">
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+      <Button
+          android:id="@+id/button1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="获取数据"
+          />
+
+      <com.bin.david.form.core.SmartTable
+          android:id="@+id/table"
+          android:layout_width="match_parent"
+          android:layout_below="@id/button1"
+          android:layout_height="452dp"
+          tools:layout_editor_absoluteY="59dp"
+          tools:ignore="MissingConstraints"
+          android:scrollbars="vertical"
+          android:fadeScrollbars="false"
+          android:scrollbarStyle="insideOverlay"
+
+          />
+
+      <Button
+          android:id="@+id/addRow"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_above="@+id/table"
+          android:layout_marginLeft="18dp"
+          android:layout_marginStart="18dp"
+          android:layout_toEndOf="@+id/button1"
+          android:layout_toRightOf="@+id/button1"
+          android:text="添加数据" />
+
+      <Button
+          android:id="@+id/scanbtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          android:layout_marginLeft="25dp"
+          android:layout_marginStart="25dp"
+          android:layout_toEndOf="@+id/addRow"
+          android:layout_toRightOf="@+id/addRow"
+          android:text="扫描" />
+      <TextView
+          android:id="@+id/scanResult"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/table"
+          android:text="helloworld"
+
+          />
+
+
+  </RelativeLayout>
+
+
+</android.support.constraint.ConstraintLayout>

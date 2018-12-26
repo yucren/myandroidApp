@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.yucren.myapplication.LoginActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/index"
+      >
+
+        <TextView
+            android:id="@+id/login"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15sp"
+            android:text="扫描登陆"
+            android:layout_alignLeft="@id/loginInfo"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+
+
+            />
+
+        <EditText
+            android:id="@+id/loginInfo"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="110dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/edit_background"
+            android:inputType="textPassword"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/loginBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_below="@id/loginInfo"
+            android:layout_marginTop="20dp"
+            android:layout_centerInParent="true"
+            android:text="登陆" />
+
+
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
