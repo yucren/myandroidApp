@@ -113,7 +113,7 @@
           android:layout_marginTop="10dp"
           android:layout_toRightOf="@id/submitBtn"
           android:background="#7AC5CD"
-          android:text="待回收"
+          android:text="出库"
           />
 
       <Button
