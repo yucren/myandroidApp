@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
         waitBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                type="submit";
+                type="out";
                 loadData("", LoginActivity.this.type);
             }
         });
@@ -262,6 +262,10 @@ public class LoginActivity extends AppCompatActivity {
                     else if (type =="submit")
                     {
                         url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Submit");
+                    }
+                    else if (type =="out")
+                    {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/out");
                     }
                     else if (type=="recycle")
                     {
