@@ -22,6 +22,7 @@ import com.bin.david.form.data.table.TableData;
 import com.example.yucren.myapplication.kanban.DtItems;
 import com.example.yucren.myapplication.kanban.Kanban;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
@@ -44,10 +45,11 @@ import java.util.logging.Logger;
 import static android.widget.EditText.*;
 
 public class LoginActivity extends AppCompatActivity {
-    public  static Kanban kanban =null;
+    public  static Kanban kanban =new Kanban();
     private EditText loginET;
     private Handler handler = new Handler();
     private String type;
+    private   Button scanbtn;
     private  TextView curtv;
     private TextView nextv;
     private  EditText kanbano;
@@ -62,11 +64,17 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         curtv =(TextView)findViewById(R.id.cutv2);
         nextv =(TextView)findViewById(R.id.instock);
+        scanbtn = (Button)findViewById(R.id.scanbtn);
         kanbano =(EditText)findViewById(R.id.kanbanno);
         startBtn=(Button)findViewById(R.id.startBtn);
         submitBtn=(Button)findViewById(R.id.submitBtn);
         waitBtn =(Button) findViewById(R.id.waitBtn);
         recycleBtn  = (Button)findViewById(R.id.recycleBtn);
+        startBtn.setEnabled(false);
+        submitBtn.setEnabled(false);
+        waitBtn.setEnabled(false);
+        recycleBtn.setEnabled(false);
+        scanbtn.setEnabled(false);
         startBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,14 +92,14 @@ public class LoginActivity extends AppCompatActivity {
         waitBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                type="recycle";
+                type="submit";
                 loadData("", LoginActivity.this.type);
             }
         });
         recycleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                type="startScan";
+                type="recycle";
                 loadData("", LoginActivity.this.type);
             }
         });
@@ -99,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
         IntentIntegrator in = new IntentIntegrator(LoginActivity.this);
         android.app.AlertDialog dialog = in.initiateScan();
         type="login";
-        Button scanbtn = (Button)findViewById(R.id.scanbtn);
+
         scanbtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,15 +131,32 @@ public class LoginActivity extends AppCompatActivity {
             IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
             if (scanResult != null) {
                 IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-                final String content = result.getContents();
+                 final String content = result.getContents();
                 if (type=="login")
                 {
-                    login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
+                    login(content);
+                    if (kanban.getLogin_user() != null && ! kanban.getLogin_user().equals(""))
+                    {
+                        final String loginUser = kanban.getLogin_user();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                LoginActivity.this.setTitle("看板扫描,扫描人员：" + kanban.getLogin_user()) ;
+                                Toast.makeText(LoginActivity.this,"登陆成功，" + kanban.getLogin_user(),Toast.LENGTH_LONG).show();
+                                scanbtn.setEnabled(true);
+                            }
+                        });
+                    }
+                    else {
+                        LoginActivity.this.type="login";
+                        IntentIntegrator in = new IntentIntegrator(LoginActivity.this);
+                        android.app.AlertDialog dialog = in.initiateScan();
+                    }
                 }
                 else
                 {
-                    kanban.setBoardNo("S00002-03");
-                    kanbano.setText("S00002-03");
+                    kanban.setBoardNo(content);
+                   kanbano.setText(content);
                     loadData(content, LoginActivity.this.type);
                 }
 
@@ -140,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         catch(Exception e)
             {
-                e.printStackTrace();
+              Log.e("err", e.getMessage());
             }
 
 
@@ -151,9 +176,8 @@ public class LoginActivity extends AppCompatActivity {
             // handle scan result
 
     }
-    private  void login (final String upcontent)
-    {
-        new Thread(new Runnable() {
+    private  void login (final String upcontent) throws InterruptedException {
+       Thread dd =  new Thread(new Runnable() {
             @Override
             public void run() {
                 URL url;
@@ -179,13 +203,7 @@ public class LoginActivity extends AppCompatActivity {
                     Gson gson =new Gson();
                     urlConnection.disconnect();
                     kanban =     gson.fromJson(result,Kanban.class);
-                    final String loginUser = kanban.getLogin_user();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(LoginActivity.this,loginUser,Toast.LENGTH_LONG).show();
-                        }
-                    });
+
                 } catch (final MalformedURLException e) {
                     handler.post(new Runnable() {
                         @Override
@@ -211,7 +229,9 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 }
             }
-        }).start();
+        });
+       dd.start();
+       dd.join();
     }
     private void loadData(final String upcontent,final String type) {
 
@@ -235,7 +255,9 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     else if (type =="scan")
                     {
+                        kanban =kanban.initialKanban();
                         url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Scan");
+
                     }
                     else if (type =="submit")
                     {
@@ -258,67 +280,71 @@ public class LoginActivity extends AppCompatActivity {
                     urlConnection.setRequestProperty("Accept-Charset","UTF-8");
                     urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
                     DataOutputStream out =new DataOutputStream(urlConnection.getOutputStream());
-                    final Gson gson =new Gson();
+                    final Gson gson =new GsonBuilder().serializeNulls().create();
                     String param =gson.toJson(kanban,Kanban.class);
                     out.write(param.getBytes());
                     out.flush();
                     out.close();
-                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK)
-                    {
-                        InputStreamReader in =new InputStreamReader(urlConnection.getInputStream());
-                        BufferedReader bufferedReader =new BufferedReader(in);
-                        String inputLine ="";
-                        while ((inputLine=bufferedReader.readLine())!=null) {
-                            result += inputLine +"\n";
-                            result =result.replace(replace,"").replace("</string>","");
+                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK) {
+                        InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(in);
+                        String inputLine = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
+                            result += inputLine + "\n";
+                            result = result.replace(replace, "").replace("</string>", "");
                         }
-                            in.close();
-                            bufferedReader.close();
-                            urlConnection.disconnect();
-                            kanban =     gson.fromJson(result,Kanban.class);
-                            if (  kanban.getErr() ==null || kanban.getErr().isEmpty() )
-                            {
+                        in.close();
+                        bufferedReader.close();
+                        urlConnection.disconnect();
+                        kanban = gson.fromJson(result, Kanban.class);
+                        if (kanban.getErr() == null || kanban.getErr() == "") {
 
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        curtv.setText(kanban.getStatusname());
-                                        nextv.setText(kanban.getNext_statusname());
-                                        table.setData(kanban.getDtItems());
+                            LoginActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    curtv.setText(kanban.getStatusname());
+                                    nextv.setText(kanban.getNext_statusname());
+                                    table.setData(kanban.getDtItems());
+                                    if (kanban.getStatusname().equals("开工")) {
+                                        startBtn.setEnabled(true);
+                                        recycleBtn.setEnabled(false);
+                                        submitBtn.setEnabled(false);
+                                        waitBtn.setEnabled(false);
+                                    } else if (kanban.getStatusname().equals("出库")) {
+                                        startBtn.setEnabled(false);
+                                        submitBtn.setEnabled(false);
+                                        recycleBtn.setEnabled(false);
+                                        waitBtn.setEnabled(true);
+                                    } else if (kanban.getStatusname().equals("待回收")) {
+                                        startBtn.setEnabled(false);
+                                        submitBtn.setEnabled(false);
+                                        waitBtn.setEnabled(false);
+                                        recycleBtn.setEnabled(true);
+                                    } else if (kanban.getStatusname().equals("")) {
+                                        startBtn.setEnabled(false);
+                                        recycleBtn.setEnabled(false);
+                                        waitBtn.setEnabled(false);
+                                        waitBtn.setEnabled(false);
 
-                                        boolean dd =kanban.getStatusname().equals("开工");
-                                       if (kanban.getStatusname().equals("开工"))
-                                       {
-                                           recycleBtn.setEnabled(false);
-                                           submitBtn.setEnabled(false);
-                                           waitBtn.setEnabled(false);
-                                       }
-                                       else  if (kanban.getStatusname().equals("待回收"))
-                                       {
-                                           startBtn.setEnabled(false);
-                                           submitBtn.setEnabled(false);
-                                           recycleBtn.setEnabled(false);
-                                       }
-                                       else  if (kanban.getStatusname().equals("回收"))
-                                       {
-                                           startBtn.setEnabled(false);
-                                           submitBtn.setEnabled(false);
-                                           waitBtn.setEnabled(false);
-                                       }
-                                       else {
-                                           startBtn.setEnabled(false);
-                                           recycleBtn.setEnabled(false);
-                                           waitBtn.setEnabled(false);
-                                       }
-
-
-
+                                    } else {
+                                       submitBtn.setEnabled(true);
+                                        startBtn.setEnabled(false);
+                                        recycleBtn.setEnabled(false);
+                                        waitBtn.setEnabled(false);
 
                                     }
-                                });
+
+                                }
+                            });
 
 
-                            }
+
+
+
+                    }
+
+
+
                             else{
                                 handler.post(new Runnable() {
                                     @Override
@@ -328,11 +354,13 @@ public class LoginActivity extends AppCompatActivity {
                                 });
 
                             }
-
+//                         if (type !="scan" && type !="login")
+//                         {
+//                             kanban=null;
+//                         }
 
                     }
                     else {
-
                         InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
                         BufferedReader bufferedReader = new BufferedReader(in);
                         String inputLine = "";
