@@ -124,7 +124,7 @@ public class MainBottomActivity extends BaseActivity {
         supportActionBar.setSubtitle("登陆用户：" +kanban.getLogin_user());
 
         setTitle(kanban.getLogin_user());
-        Toast.makeText(this,"你又回来了",Toast.LENGTH_LONG).show();
+//        Toast.makeText(this,"你又回来了",Toast.LENGTH_LONG).show();
 //        type="login";
 //        AlertDialog.Builder builder =new AlertDialog.Builder(this);
 //        builder.setTitle("提示");
@@ -458,6 +458,13 @@ public class MainBottomActivity extends BaseActivity {
                                         fragmentOne.recycleBtn.setEnabled(false);
                                         fragmentOne.waitBtn.setEnabled(false);
 
+                                    }
+                                    if (type !="scan")
+                                    {
+                                        fragmentOne.startBtn.setEnabled(false);
+                                        fragmentOne.recycleBtn.setEnabled(false);
+                                        fragmentOne.waitBtn.setEnabled(false);
+                                        fragmentOne.waitBtn.setEnabled(false);
                                     }
 
                                 }
