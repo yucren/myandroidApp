@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">看板扫描</string>
-    <string name="title_activity_main_bottom">MainBottomActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name">MES手机客户端</string>
+    <string name="title_activity_main_bottom">MES手机客户端</string>
+    <string name="title_home">看板扫描</string>
+    <string name="title_dashboard">库存查询</string>
+    <string name="title_notifications">工序扫描</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="action_settings">设置</string>
 </resources>

@@ -3,6 +3,7 @@
  */
 package com.example.yucren.myapplication.kanban;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Kanban {
+public class Kanban implements Serializable {
 
     private String Err;
     private String Login_user;
