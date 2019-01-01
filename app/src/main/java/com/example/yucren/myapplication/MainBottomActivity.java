@@ -450,7 +450,7 @@ public class MainBottomActivity extends BaseActivity {
                                         fragmentOne.startBtn.setEnabled(false);
                                         fragmentOne.recycleBtn.setEnabled(false);
                                         fragmentOne.waitBtn.setEnabled(false);
-                                        fragmentOne.waitBtn.setEnabled(false);
+                                        fragmentOne.submitBtn.setEnabled(false);
 
                                     } else {
                                         fragmentOne.submitBtn.setEnabled(true);
@@ -459,13 +459,7 @@ public class MainBottomActivity extends BaseActivity {
                                         fragmentOne.waitBtn.setEnabled(false);
 
                                     }
-                                    if (type !="scan")
-                                    {
-                                        fragmentOne.startBtn.setEnabled(false);
-                                        fragmentOne.recycleBtn.setEnabled(false);
-                                        fragmentOne.waitBtn.setEnabled(false);
-                                        fragmentOne.waitBtn.setEnabled(false);
-                                    }
+
 
                                 }
                             });
