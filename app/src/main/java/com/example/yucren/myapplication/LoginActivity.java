@@ -1,9 +1,14 @@
 package com.example.yucren.myapplication;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -50,6 +55,12 @@ public class LoginActivity extends BaseActivity {
 //    }
 
     private void InitialScan() {
+        int i =ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        if (i!=PackageManager.PERMISSION_GRANTED )
+        {
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE },1);
+            return;
+        }
         Intent intent = new Intent(LoginActivity.this, CaptureActivity.class);
         ZxingConfig config = new ZxingConfig();
         config.setPlayBeep(true);//是否播放扫描声音 默认为true
@@ -62,6 +73,19 @@ public class LoginActivity extends BaseActivity {
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode==1)
+        {
+            if (grantResults[0]== PackageManager.PERMISSION_GRANTED)
+            {
+                InitialScan();
+            }
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         super.onActivityResult(requestCode,resultCode,intent);
@@ -69,16 +93,16 @@ public class LoginActivity extends BaseActivity {
             if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
                 if (intent != null) {
                     final String content = intent.getStringExtra(Constant.CODED_CONTENT);
-                    login(content);
+                    login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
                     if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
                         final String loginUser = kanban.getLogin_user();
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(LoginActivity.this, "登陆成功，" + kanban.getLogin_user(), Toast.LENGTH_LONG).show();
-                                Intent intent  = new Intent(getApplicationContext(),MainBottomActivity.class);
-                                Bundle bundle =new Bundle();
-                                bundle.putSerializable("kanban",kanban);
+                                Intent intent = new Intent(getApplicationContext(), MainBottomActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("kanban", kanban);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
 
@@ -89,9 +113,27 @@ public class LoginActivity extends BaseActivity {
                     }
                 }
             } else {
-                InitialScan();
+                login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
+                if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
+                    final String loginUser = kanban.getLogin_user();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginActivity.this, "登陆成功，" + kanban.getLogin_user(), Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(getApplicationContext(), MainBottomActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("kanban", kanban);
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                            //  InitialScan();
+                        }
+                    });
+
+                }
             }
-        }catch (Exception e)
+
+        }
+        catch (Exception e)
         {
             Log.e("err",e.getMessage());
         }
@@ -156,30 +198,30 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void loginApp(View view) {
-     //   InitialScan();
+      InitialScan();
       // String value =getData(5555);
      //  Toast.makeText(this,value,Toast.LENGTH_LONG).show();
-     new Thread(new Runnable() {
-         @Override
-         public void run() {
-             try {
-              final String value =   getRemoteInfo(5555);
-              runOnUiThread(new Runnable() {
-                  @Override
-                  public void run() {
-                      Toast.makeText(LoginActivity.this,value,Toast.LENGTH_LONG).show();
-                  }
-              });
-             } catch (final Exception e) {
-                 runOnUiThread(new Runnable() {
-                     @Override
-                     public void run() {
-                         Toast.makeText(LoginActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                     }
-                 });
-             }
-         }
-     }).start();
+//     new Thread(new Runnable() {
+//         @Override
+//         public void run() {
+//             try {
+//              final String value =   getRemoteInfo(5555);
+//              runOnUiThread(new Runnable() {
+//                  @Override
+//                  public void run() {
+//                      Toast.makeText(LoginActivity.this,value,Toast.LENGTH_LONG).show();
+//                  }
+//              });
+//             } catch (final Exception e) {
+//                 runOnUiThread(new Runnable() {
+//                     @Override
+//                     public void run() {
+//                         Toast.makeText(LoginActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+//                     }
+//                 });
+//             }
+//         }
+//     }).start();
 
                                            }
 

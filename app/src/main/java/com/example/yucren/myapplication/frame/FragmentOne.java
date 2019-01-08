@@ -3,6 +3,7 @@ package com.example.yucren.myapplication.frame;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class FragmentOne extends Fragment {
     @Override
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+
         view = inflater.inflate(R.layout.fragment_one,container,false);
         curtv =(TextView)view.findViewById(R.id.cutv2);
         nextv =(TextView)view.findViewById(R.id.instock);
@@ -44,6 +46,7 @@ public class FragmentOne extends Fragment {
         submitBtn=(Button)view.findViewById(R.id.submitBtn);
         waitBtn =(Button) view.findViewById(R.id.waitBtn);
         recycleBtn  = (Button)view.findViewById(R.id.recycleBtn);
+
         startBtn.setEnabled(false);
         submitBtn.setEnabled(false);
         waitBtn.setEnabled(false);
@@ -58,6 +61,24 @@ public class FragmentOne extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        //当设置的高度比原来默认的高度要小时，调用setHeight();是不生效的
+        super.onResume();
+        DisplayMetrics metrics =new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int width = metrics.widthPixels;    //宽像素
+        int height =metrics.heightPixels;  //高像素
+        float density =metrics.density;  //屏幕密度
+        int densityDpi =metrics.densityDpi;
+        float deviceDP =  width /density;
+        int value = (int)((deviceDP -15-20)/4 * density);
+        startBtn.getLayoutParams().width =value;
+        submitBtn.getLayoutParams().width =value;
+        waitBtn.getLayoutParams().width =value;
+        recycleBtn.getLayoutParams().width =value;
     }
 
     @Override
@@ -109,9 +130,7 @@ public class FragmentOne extends Fragment {
         table.getConfig().setShowYSequence(false);
         table.getConfig().setFixedTitle(true);
         table.getConfig().setShowColumnTitle(true);
+
+        }
     }
 
-
-
-
-}

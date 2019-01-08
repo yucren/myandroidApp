@@ -1,28 +1,47 @@
 package com.example.yucren.myapplication;
+
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bin.david.form.core.SmartTable;
+import com.bin.david.form.data.table.MapTableData;
+import com.example.yucren.myapplication.frame.EditTextPlus;
 import com.example.yucren.myapplication.frame.FragmentOne;
 import com.example.yucren.myapplication.frame.FragmentThree;
 import com.example.yucren.myapplication.frame.FragmentTwo;
+import com.example.yucren.myapplication.frame.KanbanpdAdapter;
 import com.example.yucren.myapplication.kanban.Kanban;
+import com.example.yucren.myapplication.kanban.KanbanPD;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
@@ -31,12 +50,24 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class MainBottomActivity extends BaseActivity {
+    public static TreeSet<Float> treeSet1 = new TreeSet<>();
+    public static TreeSet<Float> treeSet2 = new TreeSet<>();
+    public static TreeSet<Float> treeSet3 = new TreeSet<>();
+    public static TreeSet<Float> treeSet4 = new TreeSet<>();
+    public static TreeSet<Float> treeSet5 = new TreeSet<>();
+    public static TreeSet<Float> treeSet6 = new TreeSet<>();
     private FragmentOne fragmentOne;
     private FragmentTwo fragmentTwo;
     private FragmentThree fragmentThree;
@@ -103,11 +134,7 @@ public class MainBottomActivity extends BaseActivity {
 
     }
     protected void myExit() {
-        Intent intent = new Intent();
-        intent.setAction("ExitApp");
 
-        this.sendBroadcast(intent);
-        super.finish();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +182,14 @@ public class MainBottomActivity extends BaseActivity {
         if (id == R.id.action_seetings)
         {
 
+        }
+        if (id== R.id.exitMenu)
+        {
+            Intent intent = new Intent();
+            intent.setAction("ExitApp");
+
+            this.sendBroadcast(intent);
+            super.finish();
         }
         if (id==R.id.user)
         {
@@ -328,9 +363,14 @@ public class MainBottomActivity extends BaseActivity {
                            });
                        } else {
                            MainBottomActivity.this.type = "login";
-                           InitialScan();
+                           loadpd(content);
                        }
-                   } else {
+                   }else if (type=="pd")
+                   {
+                       loadpd(content);
+                   }
+
+                   else {
                        kanban.setBoardNo(content);
                        fragmentOne.kanbano.setText(content);
                        loadData(content, MainBottomActivity.this.type);
@@ -338,6 +378,7 @@ public class MainBottomActivity extends BaseActivity {
                }
            }
            else  {
+               loadpd("");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -353,6 +394,300 @@ public class MainBottomActivity extends BaseActivity {
        {
            Log.e("err",e.getMessage());
        }
+
+   }
+    public  void submitpd(List<KanbanPD> pdList)
+    {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                URL url;
+                String result="";
+                try {
+                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    url=new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/submitpd");
+                    HttpURLConnection urlConnection  =(HttpURLConnection) url.openConnection();
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setReadTimeout(5000);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoInput(true);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Charset","UTF-8");
+                    urlConnection.setRequestProperty("Accept-Charset","UTF-8");
+                    urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+                    DataOutputStream out =new DataOutputStream(urlConnection.getOutputStream());
+                    final Gson gson =new GsonBuilder().serializeNulls().create();
+                    String param =gson.toJson(pdList);
+                    out.write(param.getBytes());
+                    out.flush();
+                    out.close();
+                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK) {
+                        InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(in);
+                        String inputLine = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
+                            result += inputLine;
+                          //  result = result.replace(replace, "").replace("</string>", "");
+                        }
+                        in.close();
+                        bufferedReader.close();
+                        urlConnection.disconnect();
+                        boolean d =result.equals("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>");
+                        if (d)
+                        {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ((KanbanpdAdapter)(fragmentTwo.gridView.getAdapter())).clear();
+                                    Toast.makeText(getApplicationContext(),"盘点成功" ,Toast.LENGTH_LONG).show();
+                                    ((KanbanpdAdapter) fragmentTwo.gridView.getAdapter()).notifyDataSetChanged();
+
+                                }
+                            });
+                        }
+                        else {
+                            String finalResult = result;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"存在如下错误:" + finalResult,Toast.LENGTH_LONG).show();
+                                }
+                            });
+
+                        }
+
+                    }
+                    else {
+                        InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
+                        BufferedReader bufferedReader = new BufferedReader(in);
+                        String inputLine = "";
+                        String err="";
+                        while (( inputLine = bufferedReader.readLine()) != null) {
+                            err += inputLine + "\n";
+                        }
+                        in.close();
+                        bufferedReader.close();
+                        urlConnection.disconnect();
+                        final String finalInputLine = err;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainBottomActivity.this, finalInputLine, Toast.LENGTH_LONG).show();
+
+                            }
+                        });
+                    }
+
+
+                }
+                catch (SocketTimeoutException e)
+                {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainBottomActivity.this,"连接超时",Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+
+                catch (final MalformedURLException e) {
+                    handler.post( new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                            Log.v("v",e.getMessage());
+
+                        }
+                    });
+                } catch ( final  IOException e) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                            Log.v("v",e.getMessage());
+                        }
+                    });
+                }
+                catch (final Exception e)
+                {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                            Log.v("v",e.getMessage());
+                        }
+                    });
+                }
+            }}).start();
+    }
+    public  void loadpd( String kanbanNo) throws InterruptedException {
+
+      final  String  kanbanNo1 ="L00002-01";
+
+      new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String result ="";
+                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/pd?no=" + kanbanNo1);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setReadTimeout(20000);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+                    final Gson gson = new GsonBuilder().serializeNulls().create();
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(in);
+                        String inputLine = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
+                            result += inputLine + "\n";
+                            result = result.replace(replace, "").replace("</string>", "");
+                        }
+                        in.close();
+                        bufferedReader.close();
+                        urlConnection.disconnect();
+                        JsonParser jsonParser = new JsonParser();
+                        JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
+                        Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                        List<KanbanPD> maplist = new ArrayList<>();
+                        for (JsonElement book : jsonArray) {
+                            KanbanPD kanbanPD =gson.fromJson(book,KanbanPD.class);
+                            maplist.add(kanbanPD);
+                        }
+                        Paint paint =new Paint();
+                        paint.setTextSize(50);
+                        treeSet1.clear();
+                        treeSet2.clear();
+                        treeSet3.clear();
+                        treeSet4.clear();
+                        treeSet5.clear();
+                        treeSet6.clear();
+                        for (KanbanPD pd:maplist) {
+                            treeSet1.add(paint.measureText(pd.getFItemCode()));
+                            treeSet2.add(paint.measureText(pd.getFItemName()));
+                            treeSet3.add(paint.measureText(pd.getFModel()));
+                            treeSet4.add(paint.measureText(pd.getFName()));
+                        }
+                        treeSet5.add(paint.measureText("盘点数量"));
+                        treeSet6.add(paint.measureText("库存数量"));
+                      runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                        //    fragmentTwo.gridView.setVisibility(View.INVISIBLE);
+                                            fragmentTwo.gridView.setAdapter(new KanbanpdAdapter(MainBottomActivity.this, maplist));
+                                        }
+                                    });
+//                             new Thread(new Runnable() {
+//                                  @Override
+//                                  public void run() {
+//                                      try {
+//                                     //    Thread.sleep(100);
+//                                       //  getCountClick();
+//
+//                                      // Thread.sleep(100);
+//                                        //  getCountClick();
+//                                          runOnUiThread(new Runnable() {
+//                                              @Override
+//                                              public void run() {
+//                                                  fragmentTwo.gridView.setVisibility(View.VISIBLE);
+//                                              }
+//                                          });
+//
+//
+//                                      } catch (Exception e) {
+//                                          e.printStackTrace();
+//                                      }
+//
+//                                  }
+//                              }).start();
+//
+//
+//
+//                     }
+//                      });
+
+
+                    }
+                } catch (ProtocolException e) {
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
+
+
+
+
+
+    }
+   public  void loadInv(String upcontent) throws InterruptedException {
+       final List<Object> maplist = new ArrayList<>();
+         new Thread(new Runnable() {
+           @Override
+          public void run() {
+               try {
+                   String result ="";
+                   String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                   URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv");
+                   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                   urlConnection.setConnectTimeout(5000);
+                   urlConnection.setReadTimeout(20000);
+                   urlConnection.setUseCaches(false);
+                   urlConnection.setRequestProperty("Charset", "UTF-8");
+                   urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
+                   urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+                   final Gson gson = new GsonBuilder().serializeNulls().create();
+                   if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                       InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                       BufferedReader bufferedReader = new BufferedReader(in);
+                       String inputLine = "";
+                       while ((inputLine = bufferedReader.readLine()) != null) {
+                           result += inputLine + "\n";
+                           result = result.replace(replace, "").replace("</string>", "");
+                       }
+                       in.close();
+                       bufferedReader.close();
+                       urlConnection.disconnect();
+
+                       JsonParser jsonParser = new JsonParser();
+                       JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
+                       Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                       for (JsonElement book : jsonArray) {
+                           KanbanPD kanbanPD =gson.fromJson(result,KanbanPD.class);
+                           maplist.add(kanbanPD);
+                       }
+                       final MapTableData tableData = MapTableData.create("目录", maplist);
+                       SmartTable smartTable =fragmentThree.smartTable;
+
+                       runOnUiThread(new Runnable() {
+                           @Override
+                           public void run() {
+                               fragmentThree.smartTable.setTableData(tableData);
+                           }
+                       });
+
+                   }
+               } catch (ProtocolException e) {
+                   e.printStackTrace();
+               } catch (MalformedURLException e) {
+                   e.printStackTrace();
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           }
+       });
+
+
 
    }
     public void loadData(final String upcontent, final String type) {
@@ -393,6 +728,10 @@ public class MainBottomActivity extends BaseActivity {
                     {
                         url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/recycle");
                     }
+                    else if (type=="inv")
+                    {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv");
+                    }
                     else {
                         url=new URL("");
                     }
@@ -422,6 +761,23 @@ public class MainBottomActivity extends BaseActivity {
                         in.close();
                         bufferedReader.close();
                         urlConnection.disconnect();
+                        if (type=="inv")
+                        {
+                            JsonParser jsonParser =new JsonParser();
+                            JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
+                     Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                     Type type = new TypeToken<Map<String, String>>() {}.getType();
+                            List<Object> maplist =new ArrayList<>();
+                            for (JsonElement book  : jsonArray)
+                            {
+
+                                 Map<String, String> map2 = gson2.fromJson(book,type);
+                                 maplist.add(map2);
+                            }
+                            MapTableData tableData =MapTableData.create("目录",maplist);
+                            fragmentThree.smartTable .setTableData(tableData);
+                            return;
+                        }
                         kanban = gson.fromJson(result, Kanban.class);
                         if (kanban.getErr() == null || kanban.getErr() == "") {
 
@@ -550,5 +906,147 @@ public class MainBottomActivity extends BaseActivity {
                 }
             }}).start();
     }
+
+
+
+    public void getCountClick() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                ListView listView = fragmentTwo.gridView;
+                for (int i = 0; i < listView.getChildCount(); i++) {
+                    LinearLayout  view1 = (LinearLayout) listView.getChildAt(i);
+                    TextView itemCodeTv = (TextView)view1.findViewById(R.id.itemCode);
+                    itemCodeTv.setWidth(Math.round(treeSet1.last()));
+                    TextView itemNameTv =(TextView)view1.findViewById(R.id.itemName);
+                    itemNameTv.setWidth(Math.round(treeSet2.last()));
+                    TextView processTv =(TextView)view1.findViewById(R.id.fName);
+                    processTv.setWidth(Math.round(treeSet3.last()));
+                    TextView itemModel =(TextView)view1.findViewById(R.id.fModel);
+                    itemModel.setWidth(Math.round(treeSet4.last()));
+                    TextView fcout =(TextView)view1.findViewById(R.id.fcount);
+                    fcout.setWidth(Math.round(treeSet5.last()));
+                    EditTextPlus pdCount =(EditTextPlus) view1.findViewById(R.id.fdCount);
+                    pdCount.setWidth(Math.round(treeSet6.last()));
+                }
+                listView.getLayoutParams().width=Math.round(treeSet1.last()+treeSet2.last()+treeSet3.last()+treeSet4.last()+treeSet5.last()+ treeSet6.last()+90);
+
+            }
+        });
+
+
     }
+
+
+    public void submitClick(View view) {
+
+        String submitpdData ="";
+       List<KanbanPD> pdList =   ((KanbanpdAdapter)fragmentTwo.gridView.getAdapter()).pds;
+       List<KanbanPD> submitList=new ArrayList<>();
+       int count =0;
+       for (KanbanPD pd:pdList)
+       {
+
+           if (count==0)
+           {
+               submitpdData ="以下物料确认盘点\n";
+               count +=1;
+           }
+           else if (pd.getFcount() != pd.getFDCount()){
+               submitList.add(pd);
+               submitpdData += count +":" + pd.getFItemCode() +"," + pd.getFItemName() + "," +pd.getFName() + ":盘点数量" + pd.getFDCount() +"\n" ;
+               count +=1;
+           }
+
+
+
+       }
+        if (submitList.size() !=0)
+        {
+            new  AlertDialog.Builder(this).setTitle("盘点确认").setMessage(submitpdData).setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    submitpd(submitList);
+                }
+            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
+
+        }
+        else {
+            Toast.makeText(this,"没有盘点数量，请确认",Toast.LENGTH_LONG).show();
+        }
+
+
+
+
+    }
+}
+
+@SuppressLint("AppCompatCustomView")
+class  TextViewEx extends  TextView
+{
+
+    public TextViewEx(Context context) {
+        super(context);
+    }
+
+    public TextViewEx(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public TextViewEx(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public TextViewEx(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(300,measureHeight(heightMeasureSpec));
+    }
+    private int measureWidth(int widthMeasureSpec) {
+        int result = 0;
+        int spaceMode = MeasureSpec.getMode(widthMeasureSpec);
+        int spaceSize = MeasureSpec.getSize(widthMeasureSpec);
+
+        if (spaceMode == MeasureSpec.EXACTLY){
+            result = spaceSize;
+        }else{
+            result = 200;//设置宽度默认值
+            if (spaceMode == MeasureSpec.AT_MOST){
+                result = Math.min(result,spaceSize);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获得实际宽度
+     * @param heightMeasureSpec 带模式和值的高度spec对象
+     * @return 实际测量值
+     */
+    private int measureHeight(int heightMeasureSpec) {
+        int result = 0;
+        int specMode = MeasureSpec.getMode(heightMeasureSpec);
+        int specSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        if (specMode == MeasureSpec.EXACTLY){
+            result = specSize;
+        }else {
+            result = 50;//设置高度默认值
+            if (specMode == MeasureSpec.AT_MOST){
+                result = Math.min(result,specSize);
+            }
+        }
+        return result;
+    }
+}
 

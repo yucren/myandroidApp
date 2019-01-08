@@ -31,13 +31,12 @@
             <Button
                 android:id="@+id/scanbtn"
                 android:layout_width="15dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="15dp"
                 android:layout_toRightOf="@id/kanbanno"
-                android:text="扫描"
-
-
+                android:background="@drawable/scan"
+                android:backgroundTintMode="src_over"
                 />
 
             <TextView
@@ -72,21 +71,20 @@
 
             <Button
                 android:id="@+id/startBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="141dp"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/nexTV"
                 android:layout_below="@id/nexTV"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="10dp"
-                android:background="	#7CFC00"
+                android:background="#7CCD7C"
                 android:text="开工"
 
                 />
 
             <Button
                 android:id="@+id/submitBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="141dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/nexTV"
                 android:layout_marginRight="5dp"
@@ -97,10 +95,11 @@
 
             <Button
                 android:id="@+id/waitBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="141dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/nexTV"
                 android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
                 android:layout_toRightOf="@id/submitBtn"
                 android:background="#7AC5CD"
                 android:text="出库"
@@ -108,13 +107,13 @@
 
             <Button
                 android:id="@+id/recycleBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="141dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/nexTV"
-                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_toRightOf="@id/waitBtn"
-                android:background="#9AC0CD"
+                android:background="#7AC5CD"
                 android:text="回收"
 
                 />
