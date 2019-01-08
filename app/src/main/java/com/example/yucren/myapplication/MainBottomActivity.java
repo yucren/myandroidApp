@@ -270,7 +270,7 @@ public class MainBottomActivity extends BaseActivity {
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
-    private  void login (final String upcontent) throws InterruptedException {
+    private  void login (String upcontent) throws InterruptedException {
         try{
 
         Thread dd =  new Thread(new Runnable() {
@@ -523,7 +523,6 @@ public class MainBottomActivity extends BaseActivity {
     }
     public  void loadpd( String kanbanNo) throws InterruptedException {
 
-      final  String  kanbanNo1 ="L00002-01";
 
       new Thread(new Runnable() {
             @Override
@@ -531,7 +530,7 @@ public class MainBottomActivity extends BaseActivity {
                 try {
                     String result ="";
                     String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                    URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/pd?no=" + kanbanNo1);
+                    URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/pd?no=" + kanbanNo);
                     HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setConnectTimeout(5000);
                     urlConnection.setReadTimeout(20000);
@@ -631,14 +630,14 @@ public class MainBottomActivity extends BaseActivity {
 
     }
    public  void loadInv(String upcontent) throws InterruptedException {
-       final List<Object> maplist = new ArrayList<>();
+         List<Object> maplist = new ArrayList<>();
          new Thread(new Runnable() {
            @Override
           public void run() {
                try {
                    String result ="";
                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                   URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv");
+                   URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv?no=" + upcontent);
                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                    urlConnection.setConnectTimeout(5000);
                    urlConnection.setReadTimeout(20000);
