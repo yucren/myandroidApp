@@ -778,7 +778,7 @@ public class MainBottomActivity extends BaseActivity {
                             return;
                         }
                         kanban = gson.fromJson(result, Kanban.class);
-                        if (kanban.getErr() == null || kanban.getErr() == "") {
+                        if (kanban.getErr() == null || kanban.getErr() .equals("")) {
 
                             runOnUiThread(new Runnable() {
                                 @Override
