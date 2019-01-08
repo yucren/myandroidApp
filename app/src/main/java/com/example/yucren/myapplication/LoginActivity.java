@@ -65,11 +65,11 @@ public class LoginActivity extends BaseActivity {
         ZxingConfig config = new ZxingConfig();
         config.setPlayBeep(true);//是否播放扫描声音 默认为true
         config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
         config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
         config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
         config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
@@ -93,7 +93,7 @@ public class LoginActivity extends BaseActivity {
             if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
                 if (intent != null) {
                     final String content = intent.getStringExtra(Constant.CODED_CONTENT);
-                    login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
+                    login(content);
                     if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
                         final String loginUser = kanban.getLogin_user();
                         handler.post(new Runnable() {
@@ -113,7 +113,7 @@ public class LoginActivity extends BaseActivity {
                     }
                 }
             } else {
-                login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
+
                 if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
                     final String loginUser = kanban.getLogin_user();
                     handler.post(new Runnable() {

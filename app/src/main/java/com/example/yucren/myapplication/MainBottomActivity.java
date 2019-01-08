@@ -262,15 +262,15 @@ public class MainBottomActivity extends BaseActivity {
         ZxingConfig config = new ZxingConfig();
         config.setPlayBeep(true);//是否播放扫描声音 默认为true
         config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
         config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
         config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
         config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
-    private  void login (String upcontent) throws InterruptedException {
+    private  void login (final String upcontent) throws InterruptedException {
         try{
 
         Thread dd =  new Thread(new Runnable() {
@@ -442,12 +442,13 @@ public class MainBottomActivity extends BaseActivity {
                                     ((KanbanpdAdapter)(fragmentTwo.gridView.getAdapter())).clear();
                                     Toast.makeText(getApplicationContext(),"盘点成功" ,Toast.LENGTH_LONG).show();
                                     ((KanbanpdAdapter) fragmentTwo.gridView.getAdapter()).notifyDataSetChanged();
+                                    fragmentTwo.submitpdBtn.setEnabled(false);
 
                                 }
                             });
                         }
                         else {
-                            String finalResult = result;
+                            final String finalResult = result;
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -523,7 +524,6 @@ public class MainBottomActivity extends BaseActivity {
     }
     public  void loadpd( String kanbanNo) throws InterruptedException {
 
-
       new Thread(new Runnable() {
             @Override
             public void run() {
@@ -577,6 +577,8 @@ public class MainBottomActivity extends BaseActivity {
                       runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
+                                         fragmentTwo.kanbannoTv.setText("看板编号:" + kanbanNo);
+                                         fragmentTwo.submitpdBtn.setEnabled(true);
                                         //    fragmentTwo.gridView.setVisibility(View.INVISIBLE);
                                             fragmentTwo.gridView.setAdapter(new KanbanpdAdapter(MainBottomActivity.this, maplist));
                                         }
@@ -629,8 +631,8 @@ public class MainBottomActivity extends BaseActivity {
 
 
     }
-   public  void loadInv(String upcontent) throws InterruptedException {
-         List<Object> maplist = new ArrayList<>();
+   public  void loadInv(final String upcontent) throws InterruptedException {
+         final List<Object> maplist =new ArrayList<>();
          new Thread(new Runnable() {
            @Override
           public void run() {
@@ -942,7 +944,7 @@ public class MainBottomActivity extends BaseActivity {
 
         String submitpdData ="";
        List<KanbanPD> pdList =   ((KanbanpdAdapter)fragmentTwo.gridView.getAdapter()).pds;
-       List<KanbanPD> submitList=new ArrayList<>();
+       final List<KanbanPD> submitList=new ArrayList<>();
        int count =0;
        for (KanbanPD pd:pdList)
        {
@@ -965,9 +967,11 @@ public class MainBottomActivity extends BaseActivity {
         {
             new  AlertDialog.Builder(this).setTitle("盘点确认").setMessage(submitpdData).setPositiveButton("确认", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(DialogInterface dialogInterface, int i) {
                     submitpd(submitList);
                 }
+
+
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

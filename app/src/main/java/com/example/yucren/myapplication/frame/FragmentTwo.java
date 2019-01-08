@@ -6,8 +6,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.yucren.myapplication.MainBottomActivity;
 import com.example.yucren.myapplication.R;
@@ -18,6 +20,8 @@ import com.example.yucren.myapplication.R;
 
 public class FragmentTwo extends Fragment {
   public ListView gridView;
+    public TextView kanbannoTv;
+    public Button submitpdBtn;
     View view;
     @Nullable
     @Override
@@ -25,6 +29,8 @@ public class FragmentTwo extends Fragment {
         view=inflater.inflate(R.layout.fragment_two,container,false);
          gridView =(ListView)view.findViewById(R.id.gridView1);
           ImageButton button =view.findViewById(R.id.getDataBtn);
+        kanbannoTv=(TextView) view.findViewById(R.id.kanbanno);
+        submitpdBtn=(Button)view.findViewById(R.id.submitPdBtn);
           button.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View v) {

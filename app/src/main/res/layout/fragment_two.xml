@@ -10,22 +10,34 @@
         android:background="#B0C4DE"
         >
         <Button
+            android:id="@+id/submitPdBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:text="确认盘点"
             android:textSize="20sp"
             android:onClick="submitClick"
+            android:enabled="false"
             />
         <ImageButton
             android:id="@+id/getDataBtn"
             android:layout_width="76dp"
             android:layout_height="52dp"
+            android:layout_marginLeft="15dp"
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:background="@null"
             android:scaleType="centerInside"
             android:src="@drawable/scan" />
+        <TextView
+            android:layout_below="@id/getDataBtn"
+            android:id="@+id/kanbanno"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#9370DB"
+            android:textSize="25sp"
+
+            />
 
     </RelativeLayout>
 
@@ -40,6 +52,7 @@
 <LinearLayout
    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF8DC"
     android:orientation="horizontal"
     >
 

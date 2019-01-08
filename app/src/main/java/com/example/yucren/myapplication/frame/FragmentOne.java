@@ -30,6 +30,7 @@ public class FragmentOne extends Fragment {
     public  Button submitBtn;
     public  Button waitBtn;
     public  Button recycleBtn;
+
     View view;
     MainBottomActivity mainBottomActivity;
     @Nullable
@@ -46,6 +47,7 @@ public class FragmentOne extends Fragment {
         submitBtn=(Button)view.findViewById(R.id.submitBtn);
         waitBtn =(Button) view.findViewById(R.id.waitBtn);
         recycleBtn  = (Button)view.findViewById(R.id.recycleBtn);
+
 
         startBtn.setEnabled(false);
         submitBtn.setEnabled(false);
