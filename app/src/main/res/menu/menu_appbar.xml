@@ -11,6 +11,10 @@
         android:orderInCategory="100"
         android:title="退出"
         app:showAsAction="never"/>
+    <item android:id="@+id/updateApp"
+         android:orderInCategory="100"
+        android:title="升级"
+        />
     <item android:id="@+id/user"
         android:orderInCategory="100"
         android:title="登陆用户"

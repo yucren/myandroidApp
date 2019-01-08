@@ -36,6 +36,7 @@ import com.example.yucren.myapplication.frame.FragmentTwo;
 import com.example.yucren.myapplication.frame.KanbanpdAdapter;
 import com.example.yucren.myapplication.kanban.Kanban;
 import com.example.yucren.myapplication.kanban.KanbanPD;
+import com.example.yucren.myapplication.tools.UpdataTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -182,6 +183,10 @@ public class MainBottomActivity extends BaseActivity {
         if (id == R.id.action_seetings)
         {
 
+        }
+        if (id == R.id.updateApp)
+        {
+            UpdataTool.downApp(this,"https://qd.myapp.com/myapp/qqteam/Androidlite/qqlite_3.7.1.704_android_r110206_GuanWang_537057973_release_10000484.apk");
         }
         if (id== R.id.exitMenu)
         {
