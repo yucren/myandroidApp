@@ -186,7 +186,7 @@ public class MainBottomActivity extends BaseActivity {
         }
         if (id == R.id.updateApp)
         {
-            UpdataTool.downApp(this,"https://qd.myapp.com/myapp/qqteam/Androidlite/qqlite_3.7.1.704_android_r110206_GuanWang_537057973_release_10000484.apk");
+            UpdataTool.getRemoteVersion(this);
         }
         if (id== R.id.exitMenu)
         {
