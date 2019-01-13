@@ -1,5 +1,6 @@
 package com.example.yucren.myapplication.tools;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -34,8 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdataTool {
+    public  static  boolean isNew =false;
 
-    public static  void getRemoteVersion(Context context) {
+    public static  void getRemoteVersion (Activity context) {
 
          new Thread(new Runnable() {
             @Override
@@ -72,7 +74,7 @@ public class UpdataTool {
                   int versionCheck = compareVersion(versonList.get(0).getApkInfo().getVersionName(),getVersionName(context));
                   if (versionCheck ==1)
                   {
-                      ((MainBottomActivity)context).runOnUiThread(new Runnable() {
+                      context.runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
                              new AlertDialog.Builder(context).setTitle("新版本提示").setMessage("检测到新版本：" + versonList.get(0).getApkInfo().getVersionName()).setPositiveButton("确认", new DialogInterface.OnClickListener() {
@@ -86,10 +88,12 @@ public class UpdataTool {
                       });
                   }else if (versionCheck==0)
                   {
+                      isNew=true;
 
-                      ((MainBottomActivity)context).runOnUiThread(new Runnable() {
+                     context.runOnUiThread(new Runnable() {
                                                                       @Override
                                                                       public void run() {
+
                                                                           Toast.makeText(context,"已经是最新版本",Toast.LENGTH_LONG).show();
                                                                       }
                                                                   }

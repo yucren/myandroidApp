@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.yucren.myapplication.kanban.Kanban;
+import com.example.yucren.myapplication.tools.UpdataTool;
 import com.google.gson.Gson;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
@@ -39,6 +40,7 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        UpdataTool.getRemoteVersion(this);
 
     }
 
@@ -198,7 +200,14 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void loginApp(View view) {
-      InitialScan();
+        if (UpdataTool.isNew)
+        {
+            InitialScan();
+        }
+        else {
+            Toast.makeText(this,"请升级到最新版本",Toast.LENGTH_LONG).show();
+        }
+
       // String value =getData(5555);
      //  Toast.makeText(this,value,Toast.LENGTH_LONG).show();
 //     new Thread(new Runnable() {

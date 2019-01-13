@@ -387,6 +387,7 @@ public class MainBottomActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        fragmentTwo.submitpdBtn.setEnabled(false);
                         Toast.makeText(MainBottomActivity.this,"扫描内容获取失败，请确认二维码是否正确,请重新扫描",Toast.LENGTH_LONG).show();
 
                     }
@@ -583,7 +584,14 @@ public class MainBottomActivity extends BaseActivity {
                                         @Override
                                         public void run() {
                                          fragmentTwo.kanbannoTv.setText("看板编号:" + kanbanNo);
-                                         fragmentTwo.submitpdBtn.setEnabled(true);
+                                         if (maplist.size()==1)
+                                         {
+                                             fragmentTwo.submitpdBtn.setEnabled(false);
+                                         }
+                                         else {
+                                             fragmentTwo.submitpdBtn.setEnabled(true);
+                                         }
+
                                         //    fragmentTwo.gridView.setVisibility(View.INVISIBLE);
                                             fragmentTwo.gridView.setAdapter(new KanbanpdAdapter(MainBottomActivity.this, maplist));
                                         }
