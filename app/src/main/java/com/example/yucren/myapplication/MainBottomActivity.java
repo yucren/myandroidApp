@@ -74,7 +74,7 @@ public class MainBottomActivity extends BaseActivity {
     public static TreeSet<Float> treeSet4 = new TreeSet<>();
     public static TreeSet<Float> treeSet5 = new TreeSet<>();
     public static TreeSet<Float> treeSet6 = new TreeSet<>();
-    public  static boolean initStart=true;
+    public  static boolean initStart;
     private FragmentOne fragmentOne;
     private FragmentTwo fragmentTwo;
     private FragmentThree fragmentThree;
@@ -184,6 +184,7 @@ public class MainBottomActivity extends BaseActivity {
         supportActionBar.setTitle("MES手机客户端");
         supportActionBar.setSubtitle("登陆用户：" +kanban.getLogin_user());
         setTitle(kanban.getLogin_user());
+        initStart=true;
 //        Toast.makeText(this,"你又回来了",Toast.LENGTH_LONG).show();
 //        type="login";
 //        AlertDialog.Builder builder =new AlertDialog.Builder(this);

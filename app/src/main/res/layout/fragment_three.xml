@@ -8,8 +8,17 @@
         android:layout_height="wrap_content"
         android:text="获取数据"
         />
+     <WebView
+         android:layout_below="@id/getinvBtn"
+         android:id="@+id/webBrowser"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+
+     </WebView>
+
     <com.bin.david.form.core.SmartTable
         android:id="@+id/invtable"
+        android:visibility="gone"
         android:layout_below="@id/getinvBtn"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
