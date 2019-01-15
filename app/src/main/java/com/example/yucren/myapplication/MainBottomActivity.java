@@ -74,7 +74,7 @@ public class MainBottomActivity extends BaseActivity {
     public static TreeSet<Float> treeSet4 = new TreeSet<>();
     public static TreeSet<Float> treeSet5 = new TreeSet<>();
     public static TreeSet<Float> treeSet6 = new TreeSet<>();
-
+    public  static boolean initStart=true;
     private FragmentOne fragmentOne;
     private FragmentTwo fragmentTwo;
     private FragmentThree fragmentThree;
