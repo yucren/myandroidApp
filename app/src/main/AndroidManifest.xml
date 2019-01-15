@@ -2,60 +2,64 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.yucren.myapplication">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        >
-
+        android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:label="MES手机客户端"
-
-            >
+            android:label="MES手机客户端">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity
             android:name=".MainBottomActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_main_bottom"
             android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode = "adjustNothing"
-
-            >
-        </activity>
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".Main2Activity"
-            android:label="@string/title_activity_main2"></activity>
+            android:label="@string/title_activity_main2" />
+
         <receiver android:name=".tools.DownloadReceiver">
             <intent-filter>
-                <action android:name="DownloadManager.ACTION_DOWNLOAD_COMPLETE"/>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
-                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED"/>
+                <action android:name="DownloadManager.ACTION_DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
             </intent-filter>
         </receiver>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.example.yucren.myapplication.fileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
-            <!--元数据-->
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <!-- 元数据 -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <receiver
+            android:name=".recevice.MyReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
     </application>
 

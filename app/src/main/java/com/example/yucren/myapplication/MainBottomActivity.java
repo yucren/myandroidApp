@@ -1,14 +1,18 @@
 package com.example.yucren.myapplication;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -36,6 +40,7 @@ import com.example.yucren.myapplication.frame.FragmentTwo;
 import com.example.yucren.myapplication.frame.KanbanpdAdapter;
 import com.example.yucren.myapplication.kanban.Kanban;
 import com.example.yucren.myapplication.kanban.KanbanPD;
+import com.example.yucren.myapplication.recevice.NetworkChangeReceiver;
 import com.example.yucren.myapplication.tools.UpdataTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -69,13 +74,37 @@ public class MainBottomActivity extends BaseActivity {
     public static TreeSet<Float> treeSet4 = new TreeSet<>();
     public static TreeSet<Float> treeSet5 = new TreeSet<>();
     public static TreeSet<Float> treeSet6 = new TreeSet<>();
+
     private FragmentOne fragmentOne;
     private FragmentTwo fragmentTwo;
     private FragmentThree fragmentThree;
     public  static Kanban kanban =new Kanban();
     public  static  String type;
-
+    private  IntentFilter intentFilter;
+    private NetworkChangeReceiver networkChangeReceiver;
     public Handler handler = new Handler();
+    private Handler handler1 =new Handler( ){
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            String result =(String)msg.obj;
+            Toast.makeText(MainBottomActivity.this,result,Toast.LENGTH_LONG).show();
+        }
+    };
+
+    public  void  click(View v)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String result = "helloworld";
+                Message message =new Message();
+                message.obj = result;
+                handler.sendMessage(message);
+            }
+        }).start();
+    }
     private int REQUEST_CODE_SCAN = 111;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -141,6 +170,10 @@ public class MainBottomActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_bottom);
+        intentFilter =new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        networkChangeReceiver  =new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver,intentFilter);
         init();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -150,7 +183,6 @@ public class MainBottomActivity extends BaseActivity {
         ActionBar supportActionBar =getSupportActionBar();
         supportActionBar.setTitle("MES手机客户端");
         supportActionBar.setSubtitle("登陆用户：" +kanban.getLogin_user());
-
         setTitle(kanban.getLogin_user());
 //        Toast.makeText(this,"你又回来了",Toast.LENGTH_LONG).show();
 //        type="login";
@@ -175,6 +207,12 @@ public class MainBottomActivity extends BaseActivity {
 //        });
 //        Dialog dialog =builder.create();
 //        dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkChangeReceiver);
     }
 
     @Override
