@@ -7,7 +7,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 26
         versionCode 1
-        versionName "1.5"
+        versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -40,5 +40,6 @@ dependencies {
     implementation 'com.github.huangyanbin:SmartTable:2.2.0'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'com.github.yuzhiqiang1993:zxing:2.2.4'
+    implementation 'com.koushikdutta.async:androidasync:2.+'
 
 }

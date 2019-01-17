@@ -1,5 +1,6 @@
 package com.example.yucren.myapplication.frame;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.bin.david.form.core.SmartTable;
+import com.bin.david.form.data.style.FontStyle;
 import com.example.yucren.myapplication.MainBottomActivity;
 import com.example.yucren.myapplication.R;
 
@@ -132,6 +134,9 @@ public class FragmentOne extends Fragment {
         table.getConfig().setShowYSequence(false);
         table.getConfig().setFixedTitle(true);
         table.getConfig().setShowColumnTitle(true);
+        table.getConfig().setTableTitleStyle(new FontStyle(mainBottomActivity,16,Color.BLUE));
+        table.getConfig().setColumnTitleStyle(new FontStyle(mainBottomActivity,16,Color.BLACK));
+        table.getConfig().setContentStyle(new FontStyle(mainBottomActivity,16,Color.BLACK));
 
         }
     }

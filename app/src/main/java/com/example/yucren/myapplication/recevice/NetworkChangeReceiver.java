@@ -15,6 +15,11 @@ import java.util.MissingFormatArgumentException;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+
+
+ 
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (!MainBottomActivity.initStart)

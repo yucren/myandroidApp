@@ -36,13 +36,14 @@ public class LoginActivity extends BaseActivity {
     public Kanban kanban = new Kanban();
     public Handler handler = new Handler();
     public static String address="";
+    public  static  boolean isNew;
     private int REQUEST_CODE_SCAN = 111;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         UpdataTool.getRemoteVersion(this);
-
+        isNew =true;
     }
 
 //    @Override
@@ -201,7 +202,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void loginApp(View view) {
-        if (UpdataTool.isNew)
+        if (LoginActivity.isNew)
         {
             InitialScan();
         }
@@ -264,6 +265,11 @@ public class LoginActivity extends BaseActivity {
         result = object.getProperty(0).toString();
         Log.d("debug",result);
         return result;
+
+    }
+
+    public  void  ConnWebSocketServer()
+    {
 
     }
 

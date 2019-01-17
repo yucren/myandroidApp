@@ -12,7 +12,7 @@ import com.bin.david.form.annotation.SmartTable;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-@SmartTable(name = "看板物料")
+@SmartTable(name = "看板物料明细")
 public class DtItems {
     public DtItems(long fitemid, String fitemcode, String fitemname, int ftransfer_batch) {
         this.fitemid = fitemid;
@@ -22,7 +22,7 @@ public class DtItems {
     }
 
     private long fitemid;
-    @SmartColumn(id = 0,name = "料号")
+    @SmartColumn(id = 0,name = "料号" )
     private String fitemcode;
     @SmartColumn(id = 1,name = "料品名称")
     private String fitemname;

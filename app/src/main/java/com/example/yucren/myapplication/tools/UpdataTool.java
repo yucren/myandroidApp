@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdataTool {
-    public  static  boolean isNew =false;
+
 
     public static  void getRemoteVersion (Activity context) {
 
@@ -88,7 +88,7 @@ public class UpdataTool {
                       });
                   }else if (versionCheck==0)
                   {
-                      isNew=true;
+                      LoginActivity.isNew=true;
 
                      context.runOnUiThread(new Runnable() {
                                                                       @Override
