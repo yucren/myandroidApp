@@ -3,6 +3,7 @@ package com.example.yucren.myapplication.frame;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.bin.david.form.core.SmartTable;
 import com.example.yucren.myapplication.MainBottomActivity;
 import com.example.yucren.myapplication.R;
+import com.koushikdutta.async.AsyncServer;
 import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
 import com.koushikdutta.async.callback.CompletedCallback;
@@ -25,7 +27,12 @@ import com.koushikdutta.async.http.WebSocket;
 import com.koushikdutta.async.http.socketio.Acknowledge;
 import com.koushikdutta.async.http.socketio.StringCallback;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -41,7 +48,53 @@ public class FragmentThree extends Fragment {
    public Button sendBtn;
    private  AsyncHttpClient.WebSocketConnectCallback webSocketConnectCallback;
     View view;
-    @Nullable
+    private String address = "ws://yuchengren.oicp.io:38379/WebSocketsSample/ws.ashx?name=yuchengren";
+    private URI uri;
+    private static final String TAG = "JavaWebSocket";
+    private WebSocketClient mWebSocketClient =null;
+
+    public void initSockect() {
+        try {
+            uri = new URI(address);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        if (null == mWebSocketClient) {
+            mWebSocketClient = new WebSocketClient(uri) {
+                @Override
+                public void onOpen(ServerHandshake serverHandshake) {
+                    mWebSocketClient.send("hello yuchengren");
+                    mainBottomActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mainBottomActivity,"open",Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                @Override
+                public void onMessage(String s) {
+                    mainBottomActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mainBottomActivity,s,Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                @Override
+                public void onClose(int i, String s, boolean b) {
+                    Log.i(TAG, "onClose: ");
+                }
+                @Override
+                public void onError(Exception e) {
+                    Log.i(TAG, "onError: ");
+                }
+            };
+            mWebSocketClient.connect();
+
+        }
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_three, container, false);
@@ -52,9 +105,12 @@ public class FragmentThree extends Fragment {
             @Override
             public void onClick(View view) {
 
-                
-                webSocket.send("a string");
-                webSocket.send(new byte[10]);
+//
+//                webSocket.send("a string");
+//                webSocket.send(new byte[10]);
+
+                initSockect();
+           //     mWebSocketClient.send("hello yuchengren");
 
 
             }
@@ -109,6 +165,7 @@ public class FragmentThree extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
 
 
