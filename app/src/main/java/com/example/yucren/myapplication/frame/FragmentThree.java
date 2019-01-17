@@ -18,6 +18,7 @@ import com.example.yucren.myapplication.MainBottomActivity;
 import com.example.yucren.myapplication.R;
 import com.koushikdutta.async.ByteBufferList;
 import com.koushikdutta.async.DataEmitter;
+import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.callback.DataCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
@@ -38,6 +39,7 @@ public class FragmentThree extends Fragment {
    public  Future<WebSocket> webSocketFuture;
    public  WebSocket webSocket;
    public Button sendBtn;
+   private  AsyncHttpClient.WebSocketConnectCallback webSocketConnectCallback;
     View view;
     @Nullable
     @Override
@@ -50,7 +52,27 @@ public class FragmentThree extends Fragment {
             @Override
             public void onClick(View view) {
 
-           Socket socket = (Socket) webSocket.getSocket();
+                
+                webSocket.send("a string");
+                webSocket.send(new byte[10]);
+
+
+            }
+        });
+
+        webSocketConnectCallback = new AsyncHttpClient.WebSocketConnectCallback() {
+
+
+            @Override
+            public void onCompleted(Exception ex, WebSocket webSocket) {
+                if (ex != null) {
+                    ex.printStackTrace();
+                    return;
+                }
+                FragmentThree.this.webSocket = webSocket;
+                webSocket.send("a string");
+                webSocket.send(new byte[10]);
+
 
                 webSocket.setStringCallback(new WebSocket.StringCallback() {
                     @Override
@@ -61,54 +83,36 @@ public class FragmentThree extends Fragment {
                                 Toast.makeText(mainBottomActivity,s,Toast.LENGTH_LONG).show();
                             }
                         });
+
                     }
                 });
-                webSocket.send("a string");
-                webSocket.send(new byte[10]);
-
-
+                webSocket.setDataCallback(new DataCallback() {
+                    public void onDataAvailable(DataEmitter emitter, ByteBufferList byteBufferList) {
+                        System.out.println("I got some bytes!");
+                        // note that this data has been read
+                        byteBufferList.recycle();
+                    }
+                });
+                webSocket.setClosedCallback(new CompletedCallback() {
+                    @Override
+                    public void onCompleted(Exception ex) {
+                        mainBottomActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mainBottomActivity,"helloworld",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
             }
-        });
+        };
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
 
 
-             webSocketFuture = AsyncHttpClient.getDefaultInstance().websocket("ws://192.168.60.3/WebSocketsSample/ws.ashx?name=yuchengren", "80", new AsyncHttpClient.WebSocketConnectCallback() {
-
-
-                 @Override
-                    public void onCompleted(Exception ex, WebSocket webSocket) {
-                        if (ex != null) {
-                            ex.printStackTrace();
-                            return;
-                        }
-                        FragmentThree.this.webSocket = webSocket;
-                        webSocket.send("a string");
-                        webSocket.send(new byte[10]);
-                       
-                        webSocket.setStringCallback(new WebSocket.StringCallback() {
-                            @Override
-                            public void onStringAvailable(String s) {
-                                mainBottomActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(mainBottomActivity,s,Toast.LENGTH_LONG).show();
-                                    }
-                                });
-
-                            }
-                        });
-                        webSocket.setDataCallback(new DataCallback() {
-                            public void onDataAvailable(DataEmitter emitter, ByteBufferList byteBufferList) {
-                                System.out.println("I got some bytes!");
-                                // note that this data has been read
-                                byteBufferList.recycle();
-                            }
-                        });
-                    }
-                });
+             webSocketFuture = AsyncHttpClient.getDefaultInstance().websocket("ws://yuchengren.oicp.io:38379/WebSocketsSample/ws.ashx?name=yuchengren", "80", webSocketConnectCallback);
 
 
 
