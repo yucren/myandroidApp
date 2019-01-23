@@ -8,9 +8,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -18,14 +23,19 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,6 +51,7 @@ import com.example.yucren.myapplication.frame.KanbanpdAdapter;
 import com.example.yucren.myapplication.kanban.Kanban;
 import com.example.yucren.myapplication.kanban.KanbanPD;
 import com.example.yucren.myapplication.recevice.NetworkChangeReceiver;
+import com.example.yucren.myapplication.tools.Myapp;
 import com.example.yucren.myapplication.tools.UpdataTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,6 +65,9 @@ import com.yzq.zxinglibrary.common.Constant;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -68,43 +82,31 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class MainBottomActivity extends BaseActivity {
+    public boolean isFinished;
     public static TreeSet<Float> treeSet1 = new TreeSet<>();
     public static TreeSet<Float> treeSet2 = new TreeSet<>();
     public static TreeSet<Float> treeSet3 = new TreeSet<>();
     public static TreeSet<Float> treeSet4 = new TreeSet<>();
     public static TreeSet<Float> treeSet5 = new TreeSet<>();
     public static TreeSet<Float> treeSet6 = new TreeSet<>();
-    public  static boolean initStart;
+    public static boolean initStart;
+    public static Kanban kanban = new Kanban();
+    public static String type;
+    public Handler handler = new Handler();
     private FragmentOne fragmentOne;
     private FragmentTwo fragmentTwo;
     private FragmentThree fragmentThree;
-    public  static Kanban kanban =new Kanban();
-    public  static  String type;
-    private  IntentFilter intentFilter;
+    private IntentFilter intentFilter;
     private NetworkChangeReceiver networkChangeReceiver;
-    public Handler handler = new Handler();
-    private Handler handler1 =new Handler( ){
+    private Handler handler1 = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            String result =(String)msg.obj;
-            Toast.makeText(MainBottomActivity.this,result,Toast.LENGTH_LONG).show();
+            String result = (String) msg.obj;
+            Toast.makeText(MainBottomActivity.this, result, Toast.LENGTH_LONG).show();
         }
     };
-
-    public  void  click(View v)
-    {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String result = "helloworld";
-                Message message =new Message();
-                message.obj = result;
-                handler.sendMessage(message);
-            }
-        }).start();
-    }
     private int REQUEST_CODE_SCAN = 111;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -123,16 +125,47 @@ public class MainBottomActivity extends BaseActivity {
                     return true;
 
 
-
             }
             return false;
         }
     };
 
+    public void click(View v) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String result = "helloworld";
+                Message message = new Message();
+                message.obj = result;
+                handler.sendMessage(message);
+            }
+        }).start();
+    }
+
+    @Override
+    public void finish() {
+        isFinished=true;
+        super.finish();
+    }
+
+//
+//    @Override
+//    protected void onStop() {
+//        if (!isFinished)
+//        {
+//            Intent intent =new Intent(getApplicationContext(),this.getClass());
+//            startActivity(intent);
+//            super.onStop();
+//        }
+//        else{
+//            super.onStop();
+//        }
+//
+//    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode ==KeyEvent.KEYCODE_BACK && event.getRepeatCount() !=0)
-        {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() != 0) {
             new AlertDialog.Builder(this).setMessage("长按退出扫描程序").setTitle("退出提示").setPositiveButton("确认退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -148,66 +181,48 @@ public class MainBottomActivity extends BaseActivity {
 
             return true;
 
-        }
-        else  if (keyCode ==KeyEvent.KEYCODE_BACK && event.getRepeatCount() ==0)
-            {
-                Intent home = new Intent(Intent.ACTION_MAIN);
-                home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                home.addCategory(Intent.CATEGORY_HOME);
-                startActivity(home);
+        } else if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
 
-                return  true;
-            }
-            else {
+            return true;
+        } else {
             return super.onKeyDown(keyCode, event);
         }
 
     }
+
     protected void myExit() {
 
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);  //全屏显示
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //保持屏幕常亮
+      //  getWindow().setFlags(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG,WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         setContentView(R.layout.activity_main_bottom);
-        intentFilter =new IntentFilter();
+        intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        networkChangeReceiver  =new NetworkChangeReceiver();
-        registerReceiver(networkChangeReceiver,intentFilter);
+        networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, intentFilter);
         init();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         kanban = (Kanban) bundle.getSerializable("kanban");
-        ActionBar supportActionBar =getSupportActionBar();
+        ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setTitle("MES手机客户端");
-        supportActionBar.setSubtitle("登陆用户：" +kanban.getLogin_user());
+        supportActionBar.setSubtitle("登陆用户：" + kanban.getLogin_user());
         setTitle(kanban.getLogin_user());
-        initStart=true;
-//        Toast.makeText(this,"你又回来了",Toast.LENGTH_LONG).show();
-//        type="login";
-//        AlertDialog.Builder builder =new AlertDialog.Builder(this);
-//        builder.setTitle("提示");
-//        builder.setMessage("扫描前请先登陆");
-//        builder.setIcon(R.drawable.ic_launcher_background);
-//        builder.setCancelable(false);
-//        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//                dialogInterface.dismiss();
-//                InitialScan();
-//
-//            }
-//        });
-//        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//                MainBottomActivity.this.finish();
-//            }
-//        });
-//        Dialog dialog =builder.create();
-//        dialog.show();
+        initStart = true;
+
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);  //隐藏标题栏
+
     }
 
     @Override
@@ -219,31 +234,96 @@ public class MainBottomActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_seetings)
-        {
+        if (id == R.id.action_seetings) {
+
 
         }
-        if (id == R.id.updateApp)
+        if (id== R.id.captrueScreen)
         {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    View v =getWindow().getDecorView();
+                    v.setDrawingCacheEnabled(true);
+                    v.buildDrawingCache();
+                    Bitmap srcBitMap = v.getDrawingCache();
+                    Rect frame = new Rect();
+                    getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+                    int stausBarHeight =frame.top;
+                    Point outSize = new Point();
+                    getWindowManager().getDefaultDisplay().getSize(outSize);
+                    int width = outSize.x;
+                    int height =outSize.y;
+                    Bitmap bitmap =Bitmap.createBitmap(srcBitMap,0,stausBarHeight,width,height-stausBarHeight);
+                    v.destroyDrawingCache();
+                    FileOutputStream fos =null;
+                    try{
+                        Log.i("filepath",getExternalFilesDir(null).getPath());
+
+                        ;
+                        File file =File.createTempFile("capture",".jpg",getExternalFilesDir(null) );
+
+                        fos = new FileOutputStream(file);
+                        if (null != fos)
+                        {
+                            Intent intent_ins = new Intent(Intent.ACTION_VIEW);
+                            bitmap.compress(Bitmap.CompressFormat.PNG,90,fos);
+                            Log.i("filepath2",file.getPath());
+                            fos.flush();
+                            Toast.makeText(  MainBottomActivity.this,"截屏成功",Toast.LENGTH_LONG).show();
+                            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+
+                                // 由于没有在Activity环境下启动Activity,设置下面的标签
+                                //
+                                //参数1 上下文, 参数2 Provider主机地址 和配置文件中保持一致   参数3  共享的文件
+                                Uri apkUri = FileProvider.getUriForFile(MainBottomActivity.this, "com.example.yucren.myapplication.fileProvider", file);
+                                //添加这一句表示对目标应用临时授权该Uri所代表的文件
+                                intent_ins.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                //  intent_ins.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                intent_ins.setDataAndType(apkUri, "image/*");
+                                Log.e("e","要安装的apk路径为=="+apkUri.getPath());
+                            } else {
+                                intent_ins.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                intent_ins.setDataAndType(Uri.fromFile(file),"image/*");
+                            }
+                            MainBottomActivity.this.startActivity(intent_ins);
+
+
+
+                        }
+                        fos.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            },2000);
+        }
+        if (id== R.id.about)
+        {
+            Myapp myapp =(Myapp)getApplicationContext(); //引用全局对象
+          new  AlertDialog.Builder(this).setTitle("关于").setMessage("本软件由信息部:" + myapp.author +"开发").setCancelable(true).show();
+        }
+        if (id == R.id.updateApp) {
             UpdataTool.getRemoteVersion(this);
         }
-        if (id== R.id.exitMenu)
-        {
+        if (id == R.id.exitMenu) {
             Intent intent = new Intent();
             intent.setAction("ExitApp");
 
             this.sendBroadcast(intent);
             super.finish();
         }
-        if (id==R.id.user)
-        {
-        AlertDialog.Builder  builder = new AlertDialog.Builder(this).setTitle("登陆用户信息").setIcon(R.mipmap.ic_launcher_round);
-            LayoutInflater inflater =getLayoutInflater();
-            View layout = View.inflate(this,R.layout.dialog_user,null);
+        if (id == R.id.user) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("登陆用户信息").setIcon(R.mipmap.ic_launcher_round);
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = View.inflate(this, R.layout.dialog_user, null);
             builder.setView(layout);
-            TextView userName =(TextView)layout.findViewById(R.id.userName);
-            TextView userDepart =(TextView)layout.findViewById(R.id.departName);
-            TextView userRole =(TextView)layout.findViewById(R.id.roleName);
+            TextView userName = (TextView) layout.findViewById(R.id.userName);
+            TextView userDepart = (TextView) layout.findViewById(R.id.departName);
+            TextView userRole = (TextView) layout.findViewById(R.id.roleName);
             userName.setText(kanban.getLogin_user());
             userDepart.setText(kanban.getUserDptName());
             userRole.setText(kanban.getRole());
@@ -257,28 +337,35 @@ public class MainBottomActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
+        MenuInflater menuInflater =new MenuInflater(this);
+        menuInflater.inflate(R.menu.menu_appbar,menu);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_appbar,menu);
-        return  true;
+        getMenuInflater().inflate(R.menu.menu_appbar, menu);
+
+        return true;
     }
 
-    private void init(){
-        fragmentOne=new FragmentOne();
-        fragmentTwo=new FragmentTwo();
-        fragmentThree=new FragmentThree();
-        FragmentTransaction beginTransaction=getSupportFragmentManager().beginTransaction();
-        beginTransaction.add(R.id.content,fragmentOne).add(R.id.content,fragmentTwo).add(R.id.content,fragmentThree);//开启一个事务将fragment动态加载到组件
+    private void init() {
+        fragmentOne = new FragmentOne();
+        fragmentTwo = new FragmentTwo();
+        fragmentThree = new FragmentThree();
+        FragmentTransaction beginTransaction = getSupportFragmentManager().beginTransaction();
+        beginTransaction.add(R.id.content, fragmentOne).add(R.id.content, fragmentTwo).add(R.id.content, fragmentThree);//开启一个事务将fragment动态加载到组件
         beginTransaction.hide(fragmentOne).hide(fragmentTwo).hide(fragmentThree);//隐藏fragment
-       // beginTransaction.addToBackStack(null);//返回到上一个显示的fragment
+        // beginTransaction.addToBackStack(null);//返回到上一个显示的fragment
         beginTransaction.commit();//每一个事务最后操作必须是commit（），否则看不见效果
         showNav(R.id.navigation_home);
     }
 
-    private void showNav(int navid){
-        FragmentTransaction beginTransaction=getSupportFragmentManager().beginTransaction();
-        switch (navid){
+    private void showNav(int navid) {
+        FragmentTransaction beginTransaction = getSupportFragmentManager().beginTransaction();
+        switch (navid) {
             case R.id.navigation_home:
                 beginTransaction.hide(fragmentTwo).hide(fragmentThree);
                 beginTransaction.show(fragmentOne);
@@ -288,20 +375,19 @@ public class MainBottomActivity extends BaseActivity {
             case R.id.navigation_dashboard:
                 beginTransaction.hide(fragmentOne).hide(fragmentThree);
                 beginTransaction.show(fragmentTwo);
-               // beginTransaction.addToBackStack(null);
+                // beginTransaction.addToBackStack(null);
                 beginTransaction.commit();
                 break;
             case R.id.navigation_notifications:
                 beginTransaction.hide(fragmentTwo).hide(fragmentOne);
                 beginTransaction.show(fragmentThree);
-               // beginTransaction.addToBackStack(null);
+                // beginTransaction.addToBackStack(null);
                 beginTransaction.commit();
                 break;
         }
     }
 
-    public   void InitialScan()
-    {
+    public void InitialScan() {
         Intent intent = new Intent(this, CaptureActivity.class);
         ZxingConfig config = new ZxingConfig();
         config.setPlayBeep(true);//是否播放扫描声音 默认为true
@@ -314,202 +400,190 @@ public class MainBottomActivity extends BaseActivity {
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
-    private  void login (final String upcontent) throws InterruptedException {
-        try{
 
-        Thread dd =  new Thread(new Runnable() {
-            @Override
-            public void run() {
-                URL url;
-                String result="";
-                try {
-                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                    url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/login?info=" + upcontent);
-                    HttpURLConnection urlConnection  =(HttpURLConnection) url.openConnection();
-                    urlConnection.setConnectTimeout(5000);
-                    urlConnection.setReadTimeout(5000);
-                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK)
-                    {
-                        InputStreamReader in =new InputStreamReader(urlConnection.getInputStream());
-                        BufferedReader bufferedReader =new BufferedReader(in);
-                        String inputLine ="";
-                        while ((inputLine=bufferedReader.readLine())!=null) {
-                            result += inputLine +"\n";
-                            result =result.replace(replace,"").replace("</string>","");
+    private void login(final String upcontent) throws InterruptedException {
+        try {
 
+            Thread dd = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    URL url;
+                    String result = "";
+                    try {
+                        String replace = "<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/login?info=" + upcontent);
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setConnectTimeout(5000);
+                        urlConnection.setReadTimeout(5000);
+                        if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                            InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                            BufferedReader bufferedReader = new BufferedReader(in);
+                            String inputLine = "";
+                            while ((inputLine = bufferedReader.readLine()) != null) {
+                                result += inputLine + "\n";
+                                result = result.replace(replace, "").replace("</string>", "");
+
+                            }
+                            in.close();
                         }
-                        in.close();
+                        Gson gson = new Gson();
+                        urlConnection.disconnect();
+                        kanban = gson.fromJson(result, Kanban.class);
+
+                    } catch (final MalformedURLException e) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (final IOException e) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (final Exception e) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
-                    Gson gson =new Gson();
-                    urlConnection.disconnect();
-                    kanban =     gson.fromJson(result,Kanban.class);
-
-                } catch (final MalformedURLException e) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } catch ( final  IOException e) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                        }
-                    });
                 }
-                catch ( final Exception e)
-                {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        });
-        dd.start();
-        dd.join();
-    }catch (Exception e)
-        {
+            });
+            dd.start();
+            dd.join();
+        } catch (Exception e) {
             final String err = e.getMessage();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(MainBottomActivity.this,"发生错误" + err,Toast.LENGTH_LONG);
+                    Toast.makeText(MainBottomActivity.this, "发生错误" + err, Toast.LENGTH_LONG);
                 }
             });
         }
 
     }
 
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-       super.onActivityResult(requestCode,resultCode,intent);
-       try {
-           if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-               if (intent != null) {
-                   final String content = intent.getStringExtra(Constant.CODED_CONTENT);
-                   if (type == "login") {
-                       login(content);
-                       if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
-                           final String loginUser = kanban.getLogin_user();
-                           handler.post(new Runnable() {
-                               @Override
-                               public void run() {
-                                   MainBottomActivity.this.setTitle("看板扫描,扫描人员：" + kanban.getLogin_user());
-                                   Toast.makeText(MainBottomActivity.this, "登陆成功，" + kanban.getLogin_user(), Toast.LENGTH_LONG).show();
-                                   fragmentOne.scanbtn.setEnabled(true);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        try {
+            if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
+                if (intent != null) {
+                    final String content = intent.getStringExtra(Constant.CODED_CONTENT);
+                    if (type == "login") {
+                        login(content);
+                        if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
+                            final String loginUser = kanban.getLogin_user();
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MainBottomActivity.this.setTitle("看板扫描,扫描人员：" + kanban.getLogin_user());
+                                    Toast.makeText(MainBottomActivity.this, "登陆成功，" + kanban.getLogin_user(), Toast.LENGTH_LONG).show();
+                                    fragmentOne.scanbtn.setEnabled(true);
 
-                               }
-                           });
-                       } else {
-                           MainBottomActivity.this.type = "login";
-                           loadpd(content);
-                       }
-                   }else if (type=="pd")
-                   {
-                       loadpd(content);
-                   }
-
-                   else {
-                       kanban.setBoardNo(content);
-                       fragmentOne.kanbano.setText(content);
-                       loadData(content, MainBottomActivity.this.type);
-                   }
-               }
-           }
-           else  {
-               loadpd("");
+                                }
+                            });
+                        } else {
+                            MainBottomActivity.this.type = "login";
+                            loadpd(content);
+                        }
+                    } else if (type == "pd") {
+                        loadpd(content);
+                    } else {
+                        kanban.setBoardNo(content);
+                        fragmentOne.kanbano.setText(content);
+                        loadData(content, MainBottomActivity.this.type);
+                    }
+                }
+            } else {
+                loadpd("");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         fragmentTwo.submitpdBtn.setEnabled(false);
-                        Toast.makeText(MainBottomActivity.this,"扫描内容获取失败，请确认二维码是否正确,请重新扫描",Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainBottomActivity.this, "扫描内容获取失败，请确认二维码是否正确,请重新扫描", Toast.LENGTH_LONG).show();
 
                     }
                 });
 
 
+            }
+        } catch (Exception e) {
+            Log.e("err", e.getMessage());
+        }
 
-           }
-       }catch (Exception e)
-       {
-           Log.e("err",e.getMessage());
-       }
+    }
 
-   }
-    public  void submitpd(List<KanbanPD> pdList)
-    {
+    public void submitpd(List<KanbanPD> pdList) {
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 URL url;
-                String result="";
+                String result = "";
                 try {
-                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                    url=new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/submitpd");
-                    HttpURLConnection urlConnection  =(HttpURLConnection) url.openConnection();
+                    String replace = "<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/submitpd");
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setConnectTimeout(5000);
                     urlConnection.setReadTimeout(5000);
                     urlConnection.setRequestMethod("POST");
                     urlConnection.setDoInput(true);
                     urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Charset","UTF-8");
-                    urlConnection.setRequestProperty("Accept-Charset","UTF-8");
-                    urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
-                    DataOutputStream out =new DataOutputStream(urlConnection.getOutputStream());
-                    final Gson gson =new GsonBuilder().serializeNulls().create();
-                    String param =gson.toJson(pdList);
+                    urlConnection.setRequestProperty("Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+                    DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+                    final Gson gson = new GsonBuilder().serializeNulls().create();
+                    String param = gson.toJson(pdList);
                     out.write(param.getBytes());
                     out.flush();
                     out.close();
-                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK) {
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                         InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
                         BufferedReader bufferedReader = new BufferedReader(in);
                         String inputLine = "";
                         while ((inputLine = bufferedReader.readLine()) != null) {
                             result += inputLine;
-                          //  result = result.replace(replace, "").replace("</string>", "");
+                            //  result = result.replace(replace, "").replace("</string>", "");
                         }
                         in.close();
                         bufferedReader.close();
                         urlConnection.disconnect();
-                        boolean d =result.equals("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>");
-                        if (d)
-                        {
+                        boolean d = result.equals("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\"/>");
+                        if (d) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    ((KanbanpdAdapter)(fragmentTwo.gridView.getAdapter())).clear();
-                                    Toast.makeText(getApplicationContext(),"盘点成功" ,Toast.LENGTH_LONG).show();
+                                    ((KanbanpdAdapter) (fragmentTwo.gridView.getAdapter())).clear();
+                                    Toast.makeText(getApplicationContext(), "盘点成功", Toast.LENGTH_LONG).show();
                                     ((KanbanpdAdapter) fragmentTwo.gridView.getAdapter()).notifyDataSetChanged();
                                     fragmentTwo.submitpdBtn.setEnabled(false);
 
                                 }
                             });
-                        }
-                        else {
+                        } else {
                             final String finalResult = result;
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(),"存在如下错误:" + finalResult,Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "存在如下错误:" + finalResult, Toast.LENGTH_LONG).show();
                                 }
                             });
 
                         }
 
-                    }
-                    else {
+                    } else {
                         InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
                         BufferedReader bufferedReader = new BufferedReader(in);
                         String inputLine = "";
-                        String err="";
-                        while (( inputLine = bufferedReader.readLine()) != null) {
+                        String err = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
                             err += inputLine + "\n";
                         }
                         in.close();
@@ -526,55 +600,51 @@ public class MainBottomActivity extends BaseActivity {
                     }
 
 
-                }
-                catch (SocketTimeoutException e)
-                {
+                } catch (SocketTimeoutException e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,"连接超时",Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainBottomActivity.this, "连接超时", Toast.LENGTH_LONG).show();
                         }
                     });
-                }
-
-                catch (final MalformedURLException e) {
-                    handler.post( new Runnable() {
+                } catch (final MalformedURLException e) {
+                    handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
 
                         }
                     });
-                } catch ( final  IOException e) {
+                } catch (final IOException e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
                         }
                     });
-                }
-                catch (final Exception e)
-                {
+                } catch (final Exception e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
                         }
                     });
                 }
-            }}).start();
+            }
+        }).start();
     }
-    public  void loadpd( String kanbanNo) throws InterruptedException {
 
-      new Thread(new Runnable() {
+    public void loadpd(String kanbanNo) throws InterruptedException {
+
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String result ="";
-                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    String result = "";
+                    String replace = "<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
                     URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/pd?no=" + kanbanNo);
                     HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setConnectTimeout(5000);
@@ -600,18 +670,18 @@ public class MainBottomActivity extends BaseActivity {
                         Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
                         List<KanbanPD> maplist = new ArrayList<>();
                         for (JsonElement book : jsonArray) {
-                            KanbanPD kanbanPD =gson.fromJson(book,KanbanPD.class);
+                            KanbanPD kanbanPD = gson.fromJson(book, KanbanPD.class);
                             maplist.add(kanbanPD);
                         }
-                        Paint paint =new Paint();
-                        paint.setTextSize(50);
+                        Paint paint = new Paint();
+                        paint.setTextSize(getResources().getDimensionPixelSize(R.dimen.textSize));
                         treeSet1.clear();
                         treeSet2.clear();
                         treeSet3.clear();
                         treeSet4.clear();
                         treeSet5.clear();
                         treeSet6.clear();
-                        for (KanbanPD pd:maplist) {
+                        for (KanbanPD pd : maplist) {
                             treeSet1.add(paint.measureText(pd.getFItemCode()));
                             treeSet2.add(paint.measureText(pd.getFItemName()));
                             treeSet3.add(paint.measureText(pd.getFModel()));
@@ -619,52 +689,18 @@ public class MainBottomActivity extends BaseActivity {
                         }
                         treeSet5.add(paint.measureText("盘点数量"));
                         treeSet6.add(paint.measureText("库存数量"));
-                      runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                         fragmentTwo.kanbannoTv.setText("看板编号:" + kanbanNo);
-                                         if (maplist.size()==1)
-                                         {
-                                             fragmentTwo.submitpdBtn.setEnabled(false);
-                                         }
-                                         else {
-                                             fragmentTwo.submitpdBtn.setEnabled(true);
-                                         }
-
-                                        //    fragmentTwo.gridView.setVisibility(View.INVISIBLE);
-                                            fragmentTwo.gridView.setAdapter(new KanbanpdAdapter(MainBottomActivity.this, maplist));
-                                        }
-                                    });
-//                             new Thread(new Runnable() {
-//                                  @Override
-//                                  public void run() {
-//                                      try {
-//                                     //    Thread.sleep(100);
-//                                       //  getCountClick();
-//
-//                                      // Thread.sleep(100);
-//                                        //  getCountClick();
-//                                          runOnUiThread(new Runnable() {
-//                                              @Override
-//                                              public void run() {
-//                                                  fragmentTwo.gridView.setVisibility(View.VISIBLE);
-//                                              }
-//                                          });
-//
-//
-//                                      } catch (Exception e) {
-//                                          e.printStackTrace();
-//                                      }
-//
-//                                  }
-//                              }).start();
-//
-//
-//
-//                     }
-//                      });
-
-
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fragmentTwo.kanbannoTv.setText("看板编号:" + kanbanNo);
+                                if (maplist.size() == 1) {
+                                    fragmentTwo.submitpdBtn.setEnabled(false);
+                                } else {
+                                    fragmentTwo.submitpdBtn.setEnabled(true);
+                                }
+                                fragmentTwo.gridView.setAdapter(new KanbanpdAdapter(MainBottomActivity.this, maplist));
+                            }
+                        });
                     }
                 } catch (ProtocolException e) {
                     e.printStackTrace();
@@ -677,133 +713,26 @@ public class MainBottomActivity extends BaseActivity {
         }).start();
 
 
-
-
-
-
-
     }
-   public  void loadInv(final String upcontent) throws InterruptedException {
-         final List<Object> maplist =new ArrayList<>();
-         new Thread(new Runnable() {
-           @Override
-          public void run() {
-               try {
-                   String result ="";
-                   String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                   URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv?no=" + upcontent);
-                   HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                   urlConnection.setConnectTimeout(5000);
-                   urlConnection.setReadTimeout(20000);
-                   urlConnection.setUseCaches(false);
-                   urlConnection.setRequestProperty("Charset", "UTF-8");
-                   urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
-                   urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-                   final Gson gson = new GsonBuilder().serializeNulls().create();
-                   if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                       InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
-                       BufferedReader bufferedReader = new BufferedReader(in);
-                       String inputLine = "";
-                       while ((inputLine = bufferedReader.readLine()) != null) {
-                           result += inputLine + "\n";
-                           result = result.replace(replace, "").replace("</string>", "");
-                       }
-                       in.close();
-                       bufferedReader.close();
-                       urlConnection.disconnect();
 
-                       JsonParser jsonParser = new JsonParser();
-                       JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
-                       Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
-                       for (JsonElement book : jsonArray) {
-                           KanbanPD kanbanPD =gson.fromJson(result,KanbanPD.class);
-                           maplist.add(kanbanPD);
-                       }
-                       final MapTableData tableData = MapTableData.create("目录", maplist);
-                       SmartTable smartTable =fragmentThree.smartTable;
-
-                       runOnUiThread(new Runnable() {
-                           @Override
-                           public void run() {
-                               fragmentThree.smartTable.setTableData(tableData);
-                           }
-                       });
-
-                   }
-               } catch (ProtocolException e) {
-                   e.printStackTrace();
-               } catch (MalformedURLException e) {
-                   e.printStackTrace();
-               } catch (IOException e) {
-                   e.printStackTrace();
-               }
-           }
-       });
-
-
-
-   }
-    public void loadData(final String upcontent, final String type) {
-
-
+    public void loadInv(final String upcontent) throws InterruptedException {
+        final List<Object> maplist = new ArrayList<>();
         new Thread(new Runnable() {
-
             @Override
             public void run() {
-                URL url;
-                String result="";
                 try {
-                    String replace ="<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
-                    if (type =="login")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/login?info=" + upcontent);
-                    }
-                    else  if (type =="startScan")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/StartScan");
-
-                    }
-                    else if (type =="scan")
-                    {
-                        kanban =kanban.initialKanban();
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Scan");
-
-                    }
-                    else if (type =="submit")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Submit");
-                    }
-                    else if (type =="out")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/out");
-                    }
-                    else if (type=="recycle")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/recycle");
-                    }
-                    else if (type=="inv")
-                    {
-                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv");
-                    }
-                    else {
-                        url=new URL("");
-                    }
-                    final HttpURLConnection urlConnection  =(HttpURLConnection) url.openConnection();
+                    String result = "";
+                    String replace = "<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    URL url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv?no=" + upcontent);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setConnectTimeout(5000);
-                    urlConnection.setReadTimeout(5000);
-                    urlConnection.setRequestMethod("POST");
-                    urlConnection.setDoInput(true);
+                    urlConnection.setReadTimeout(20000);
                     urlConnection.setUseCaches(false);
-                    urlConnection.setRequestProperty("Charset","UTF-8");
-                    urlConnection.setRequestProperty("Accept-Charset","UTF-8");
-                    urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
-                    DataOutputStream out =new DataOutputStream(urlConnection.getOutputStream());
-                    final Gson gson =new GsonBuilder().serializeNulls().create();
-                    String param =gson.toJson(kanban,Kanban.class);
-                    out.write(param.getBytes());
-                    out.flush();
-                    out.close();
-                    if (urlConnection.getResponseCode()== HttpURLConnection.HTTP_OK) {
+                    urlConnection.setRequestProperty("Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+                    final Gson gson = new GsonBuilder().serializeNulls().create();
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                         InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
                         BufferedReader bufferedReader = new BufferedReader(in);
                         String inputLine = "";
@@ -814,32 +743,119 @@ public class MainBottomActivity extends BaseActivity {
                         in.close();
                         bufferedReader.close();
                         urlConnection.disconnect();
-                        if (type=="inv")
-                        {
-                            JsonParser jsonParser =new JsonParser();
-                            JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
-                     Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
-                     Type type = new TypeToken<Map<String, String>>() {}.getType();
-                            List<Object> maplist =new ArrayList<>();
-                            for (JsonElement book  : jsonArray)
-                            {
 
-                                 Map<String, String> map2 = gson2.fromJson(book,type);
-                                 maplist.add(map2);
+                        JsonParser jsonParser = new JsonParser();
+                        JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
+                        Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                        for (JsonElement book : jsonArray) {
+                            KanbanPD kanbanPD = gson.fromJson(result, KanbanPD.class);
+                            maplist.add(kanbanPD);
+                        }
+                        final MapTableData tableData = MapTableData.create("目录", maplist);
+                        SmartTable smartTable = fragmentThree.smartTable;
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fragmentThree.smartTable.setTableData(tableData);
                             }
-                            MapTableData tableData =MapTableData.create("目录",maplist);
-                            fragmentThree.smartTable .setTableData(tableData);
+                        });
+
+                    }
+                } catch (ProtocolException e) {
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+    }
+
+    public void loadData(final String upcontent, final String type) {
+
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                URL url;
+                String result = "";
+                try {
+                    String replace = "<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">";
+                    if (type == "login") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/login?info=" + upcontent);
+                    } else if (type == "startScan") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/StartScan");
+
+                    } else if (type == "scan") {
+                        kanban = kanban.initialKanban();
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Scan");
+
+                    } else if (type == "submit") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/Submit");
+                    } else if (type == "out") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/out");
+                    } else if (type == "recycle") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MES.svc/recycle");
+                    } else if (type == "inv") {
+                        url = new URL("http://yu539928505.imwork.net/SHJXMESWCFServer/MESService.svc/getinv");
+                    } else {
+                        url = new URL("");
+                    }
+                    final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setReadTimeout(5000);
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoInput(true);
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setRequestProperty("Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Accept-Charset", "UTF-8");
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+                    DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+                    final Gson gson = new GsonBuilder().serializeNulls().create();
+                    String param = gson.toJson(kanban, Kanban.class);
+                    out.write(param.getBytes());
+                    out.flush();
+                    out.close();
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(in);
+                        String inputLine = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
+                            result += inputLine + "\n";
+                            result = result.replace(replace, "").replace("</string>", "");
+                        }
+                        in.close();
+                        bufferedReader.close();
+                        urlConnection.disconnect();
+                        if (type == "inv") {
+                            JsonParser jsonParser = new JsonParser();
+                            JsonArray jsonArray = jsonParser.parse(result).getAsJsonArray();
+                            Gson gson2 = new GsonBuilder().enableComplexMapKeySerialization().create();
+                            Type type = new TypeToken<Map<String, String>>() {
+                            }.getType();
+                            List<Object> maplist = new ArrayList<>();
+                            for (JsonElement book : jsonArray) {
+
+                                Map<String, String> map2 = gson2.fromJson(book, type);
+                                maplist.add(map2);
+                            }
+                            MapTableData tableData = MapTableData.create("目录", maplist);
+                            fragmentThree.smartTable.setTableData(tableData);
                             return;
                         }
                         kanban = gson.fromJson(result, Kanban.class);
-                        if (kanban.getErr() == null || kanban.getErr() .equals("")) {
-
+                        if (kanban.getErr() == null || kanban.getErr().equals("")) {
+                            fragmentOne.table.setData(kanban.getDtItems());
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     fragmentOne.curtv.setText(kanban.getStatusname());
                                     fragmentOne.nextv.setText(kanban.getNext_statusname());
-                                    fragmentOne.table.setData(kanban.getDtItems());
                                     if (kanban.getStatusname().equals("开工")) {
                                         fragmentOne.startBtn.setEnabled(true);
                                         fragmentOne.recycleBtn.setEnabled(false);
@@ -869,39 +885,25 @@ public class MainBottomActivity extends BaseActivity {
 
                                     }
 
-
+                                    fragmentOne.table.postInvalidate();
                                 }
                             });
 
-
-
-
-
-                        }
-
-
-
-                        else{
+                        } else {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(MainBottomActivity.this,kanban.getErr().toString(),Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MainBottomActivity.this, kanban.getErr().toString(), Toast.LENGTH_LONG).show();
                                 }
                             });
 
                         }
-//                         if (type !="scan" && type !="login")
-//                         {
-//                             kanban=null;
-//                         }
-
-                    }
-                    else {
+                    } else {
                         InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
                         BufferedReader bufferedReader = new BufferedReader(in);
                         String inputLine = "";
-                        String err="";
-                        while (( inputLine = bufferedReader.readLine()) != null) {
+                        String err = "";
+                        while ((inputLine = bufferedReader.readLine()) != null) {
                             err += inputLine + "\n";
                         }
                         in.close();
@@ -918,48 +920,42 @@ public class MainBottomActivity extends BaseActivity {
                     }
 
 
-                }
-                catch (SocketTimeoutException e)
-                {
+                } catch (SocketTimeoutException e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,"连接超时",Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainBottomActivity.this, "连接超时", Toast.LENGTH_LONG).show();
                         }
                     });
-                }
-
-                catch (final MalformedURLException e) {
-                    handler.post( new Runnable() {
+                } catch (final MalformedURLException e) {
+                    handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
 
                         }
                     });
-                } catch ( final  IOException e) {
+                } catch (final IOException e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
                         }
                     });
-                }
-                catch (final Exception e)
-                {
+                } catch (final Exception e) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainBottomActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                            Log.v("v",e.getMessage());
+                            Toast.makeText(MainBottomActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v("v", e.getMessage());
                         }
                     });
                 }
-            }}).start();
+            }
+        }).start();
     }
-
 
 
     public void getCountClick() {
@@ -969,21 +965,21 @@ public class MainBottomActivity extends BaseActivity {
 
                 ListView listView = fragmentTwo.gridView;
                 for (int i = 0; i < listView.getChildCount(); i++) {
-                    LinearLayout  view1 = (LinearLayout) listView.getChildAt(i);
-                    TextView itemCodeTv = (TextView)view1.findViewById(R.id.itemCode);
+                    LinearLayout view1 = (LinearLayout) listView.getChildAt(i);
+                    TextView itemCodeTv = (TextView) view1.findViewById(R.id.itemCode);
                     itemCodeTv.setWidth(Math.round(treeSet1.last()));
-                    TextView itemNameTv =(TextView)view1.findViewById(R.id.itemName);
+                    TextView itemNameTv = (TextView) view1.findViewById(R.id.itemName);
                     itemNameTv.setWidth(Math.round(treeSet2.last()));
-                    TextView processTv =(TextView)view1.findViewById(R.id.fName);
+                    TextView processTv = (TextView) view1.findViewById(R.id.fName);
                     processTv.setWidth(Math.round(treeSet3.last()));
-                    TextView itemModel =(TextView)view1.findViewById(R.id.fModel);
+                    TextView itemModel = (TextView) view1.findViewById(R.id.fModel);
                     itemModel.setWidth(Math.round(treeSet4.last()));
-                    TextView fcout =(TextView)view1.findViewById(R.id.fcount);
+                    TextView fcout = (TextView) view1.findViewById(R.id.fcount);
                     fcout.setWidth(Math.round(treeSet5.last()));
-                    EditTextPlus pdCount =(EditTextPlus) view1.findViewById(R.id.fdCount);
+                    EditTextPlus pdCount = (EditTextPlus) view1.findViewById(R.id.fdCount);
                     pdCount.setWidth(Math.round(treeSet6.last()));
                 }
-                listView.getLayoutParams().width=Math.round(treeSet1.last()+treeSet2.last()+treeSet3.last()+treeSet4.last()+treeSet5.last()+ treeSet6.last()+90);
+                listView.getLayoutParams().width = Math.round(treeSet1.last() + treeSet2.last() + treeSet3.last() + treeSet4.last() + treeSet5.last() + treeSet6.last() + 90);
 
             }
         });
@@ -994,30 +990,25 @@ public class MainBottomActivity extends BaseActivity {
 
     public void submitClick(View view) {
 
-        String submitpdData ="";
-       List<KanbanPD> pdList =   ((KanbanpdAdapter)fragmentTwo.gridView.getAdapter()).pds;
-       final List<KanbanPD> submitList=new ArrayList<>();
-       int count =0;
-       for (KanbanPD pd:pdList)
-       {
+        String submitpdData = "";
+        List<KanbanPD> pdList = ((KanbanpdAdapter) fragmentTwo.gridView.getAdapter()).pds;
+        final List<KanbanPD> submitList = new ArrayList<>();
+        int count = 0;
+        for (KanbanPD pd : pdList) {
 
-           if (count==0)
-           {
-               submitpdData ="以下物料确认盘点\n";
-               count +=1;
-           }
-           else if (pd.getFcount() != pd.getFDCount()){
-               submitList.add(pd);
-               submitpdData += count +":" + pd.getFItemCode() +"," + pd.getFItemName() + "," +pd.getFName() + ":盘点数量" + pd.getFDCount() +"\n" ;
-               count +=1;
-           }
+            if (count == 0) {
+                submitpdData = "以下物料确认盘点\n";
+                count += 1;
+            } else if (pd.getFcount() != pd.getFDCount()) {
+                submitList.add(pd);
+                submitpdData += count + ":" + pd.getFItemCode() + "," + pd.getFItemName() + "," + pd.getFName() + ":盘点数量" + pd.getFDCount() + "\n";
+                count += 1;
+            }
 
 
-
-       }
-        if (submitList.size() !=0)
-        {
-            new  AlertDialog.Builder(this).setTitle("盘点确认").setMessage(submitpdData).setPositiveButton("确认", new DialogInterface.OnClickListener() {
+        }
+        if (submitList.size() != 0) {
+            new AlertDialog.Builder(this).setTitle("盘点确认").setMessage(submitpdData).setPositiveButton("确认", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     submitpd(submitList);
@@ -1031,20 +1022,16 @@ public class MainBottomActivity extends BaseActivity {
                 }
             }).show();
 
+        } else {
+            Toast.makeText(this, "没有盘点数量，请确认", Toast.LENGTH_LONG).show();
         }
-        else {
-            Toast.makeText(this,"没有盘点数量，请确认",Toast.LENGTH_LONG).show();
-        }
-
-
 
 
     }
 }
 
 @SuppressLint("AppCompatCustomView")
-class  TextViewEx extends  TextView
-{
+class TextViewEx extends TextView {
 
     public TextViewEx(Context context) {
         super(context);
@@ -1065,19 +1052,20 @@ class  TextViewEx extends  TextView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(300,measureHeight(heightMeasureSpec));
+        setMeasuredDimension(300, measureHeight(heightMeasureSpec));
     }
+
     private int measureWidth(int widthMeasureSpec) {
         int result = 0;
         int spaceMode = MeasureSpec.getMode(widthMeasureSpec);
         int spaceSize = MeasureSpec.getSize(widthMeasureSpec);
 
-        if (spaceMode == MeasureSpec.EXACTLY){
+        if (spaceMode == MeasureSpec.EXACTLY) {
             result = spaceSize;
-        }else{
+        } else {
             result = 200;//设置宽度默认值
-            if (spaceMode == MeasureSpec.AT_MOST){
-                result = Math.min(result,spaceSize);
+            if (spaceMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, spaceSize);
             }
         }
         return result;
@@ -1085,6 +1073,7 @@ class  TextViewEx extends  TextView
 
     /**
      * 获得实际宽度
+     *
      * @param heightMeasureSpec 带模式和值的高度spec对象
      * @return 实际测量值
      */
@@ -1093,12 +1082,12 @@ class  TextViewEx extends  TextView
         int specMode = MeasureSpec.getMode(heightMeasureSpec);
         int specSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (specMode == MeasureSpec.EXACTLY){
+        if (specMode == MeasureSpec.EXACTLY) {
             result = specSize;
-        }else {
+        } else {
             result = 50;//设置高度默认值
-            if (specMode == MeasureSpec.AT_MOST){
-                result = Math.min(result,specSize);
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, specSize);
             }
         }
         return result;

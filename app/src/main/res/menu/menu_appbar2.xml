@@ -9,11 +9,11 @@
         app:showAsAction="never"/>
     <item android:id="@+id/exitMenu"
         android:orderInCategory="100"
-        android:title="退出"
+        android:title="退出2"
         app:showAsAction="never"/>
     <item android:id="@+id/updateApp"
          android:orderInCategory="100"
-        android:title="升级"
+        android:title="升级3"
         />
     <item android:id="@+id/user"
         android:orderInCategory="100"

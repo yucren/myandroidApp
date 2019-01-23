@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,6 +51,7 @@ public class FragmentOne extends Fragment {
         submitBtn=(Button)view.findViewById(R.id.submitBtn);
         waitBtn =(Button) view.findViewById(R.id.waitBtn);
         recycleBtn  = (Button)view.findViewById(R.id.recycleBtn);
+        table = (SmartTable)view.findViewById(R.id.scanTable);
 
 
         startBtn.setEnabled(false);
@@ -56,9 +59,11 @@ public class FragmentOne extends Fragment {
         waitBtn.setEnabled(false);
         recycleBtn.setEnabled(false);
         scanbtn.setEnabled(false);
+        registerForContextMenu(curtv);
         return  view;
 
     }
+
 
 
 
@@ -83,6 +88,12 @@ public class FragmentOne extends Fragment {
         submitBtn.getLayoutParams().width =value;
         waitBtn.getLayoutParams().width =value;
         recycleBtn.getLayoutParams().width =value;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        MenuInflater menuInflater =new MenuInflater(getContext());
+        menuInflater.inflate(R.menu.menu_appbar2,menu);
     }
 
     @Override
@@ -128,7 +139,7 @@ public class FragmentOne extends Fragment {
                 mainBottomActivity.InitialScan();
             }
         });
-        table = (SmartTable)view.findViewById(R.id.scanTable);
+
 //        ArrayList<DtItems> dtItems =  new ArrayList<DtItems>();
         table.getConfig().setShowXSequence(false);
         table.getConfig().setShowYSequence(false);

@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.yucren.myapplication.kanban.Kanban;
@@ -117,7 +118,7 @@ public class LoginActivity extends BaseActivity {
                     }
                 }
             } else {
-
+                login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
                 if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
                     final String loginUser = kanban.getLogin_user();
                     handler.post(new Runnable() {

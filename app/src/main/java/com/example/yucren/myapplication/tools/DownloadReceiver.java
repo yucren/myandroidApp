@@ -30,7 +30,6 @@ public class DownloadReceiver extends BroadcastReceiver {
                 String fileName1 = c.getString(fileUriId);
                 String fileName = fileName1.substring(fileName1.indexOf("shjxmes"));
                 String dddd =context.getExternalFilesDir(null).getPath();
-
                 File file = new File(Environment.getExternalStoragePublicDirectory("")+"/"+ Environment.DIRECTORY_DOWNLOADS, fileName);
                 if (fileName != null) {
                     Intent intent_ins = new Intent(Intent.ACTION_VIEW);
