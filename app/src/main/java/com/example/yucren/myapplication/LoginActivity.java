@@ -3,6 +3,7 @@ package com.example.yucren.myapplication;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -38,13 +40,30 @@ public class LoginActivity extends BaseActivity {
     public Handler handler = new Handler();
     public static String address="";
     public  static  boolean isNew;
+    private SharedPreferences config;
     private int REQUEST_CODE_SCAN = 111;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         UpdataTool.getRemoteVersion(this);
+        config =getSharedPreferences("loginConfig", MODE_PRIVATE);
+        String data =config.getString("loginInfo","");
         isNew =true;
+        if (!data.equals(""))
+        {
+            try {
+                login(data);
+                Intent intent = new Intent(getApplicationContext(), MainBottomActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("kanban", kanban);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                return;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 //    @Override
@@ -74,7 +93,7 @@ public class LoginActivity extends BaseActivity {
         config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
         config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
         config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(intent, REQUEST_CODE_SCAN);
     }
@@ -109,6 +128,8 @@ public class LoginActivity extends BaseActivity {
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("kanban", kanban);
                                 intent.putExtras(bundle);
+                                 config.edit().putString("loginInfo",content).apply();
+
                                 startActivity(intent);
 
                             }
@@ -118,7 +139,7 @@ public class LoginActivity extends BaseActivity {
                     }
                 }
             } else {
-                login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
+              //  login("001001718,BEFFA6C0D5363F6B44C0AF4029E17DB3,俞程仁,信息部");
                 if (kanban.getLogin_user() != null && !kanban.getLogin_user().equals("")) {
                     final String loginUser = kanban.getLogin_user();
                     handler.post(new Runnable() {

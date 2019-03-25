@@ -90,15 +90,15 @@ public class UpdataTool {
                   {
                       LoginActivity.isNew=true;
 
-                     context.runOnUiThread(new Runnable() {
-                                                                      @Override
-                                                                      public void run() {
-
-                                                                          Toast.makeText(context,"已经是最新版本",Toast.LENGTH_LONG).show();
-                                                                      }
-                                                                  }
-                      );
-                                                               }
+//                     context.runOnUiThread(new Runnable() {
+//                                                                      @Override
+//                                                                      public void run() {
+//
+//                                                                          Toast.makeText(context,"已经是最新版本",Toast.LENGTH_LONG).show();
+//                                                                      }
+//                                                                  }
+//                      );
+                                                              }
 
 
 

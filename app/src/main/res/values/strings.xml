@@ -6,4 +6,10 @@
     <string name="title_notifications">工序扫描</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="action_settings">设置</string>
+    <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
 </resources>

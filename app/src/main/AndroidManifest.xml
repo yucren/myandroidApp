@@ -18,6 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".NavigationActivity"
+            android:label="@string/title_activity_navigation"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
             android:name=".LoginActivity"
             android:label="MES手机客户端">
             <intent-filter>
@@ -32,7 +38,9 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_main_bottom"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="adjustNothing">
+
+        </activity>
 
         <activity
             android:name=".Main2Activity"
@@ -61,8 +69,7 @@
         <receiver
             android:name=".recevice.MyReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
-
+            android:exported="true" />
     </application>
 
 </manifest>

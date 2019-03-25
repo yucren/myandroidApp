@@ -22,8 +22,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -81,7 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-public class MainBottomActivity extends BaseActivity {
+public class MainBottomActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public boolean isFinished;
     public static TreeSet<Float> treeSet1 = new TreeSet<>();
     public static TreeSet<Float> treeSet2 = new TreeSet<>();
@@ -201,7 +204,7 @@ public class MainBottomActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);  //全屏显示
+      //  getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);  //全屏显示
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //保持屏幕常亮
       //  getWindow().setFlags(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG,WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
         setContentView(R.layout.activity_main_bottom);
@@ -493,11 +496,25 @@ public class MainBottomActivity extends BaseActivity {
                             loadpd(content);
                         }
                     } else if (type == "pd") {
-                        loadpd(content);
+                        if (content.startsWith("S") || content.startsWith("L"))
+                        {
+                            loadpd(content);
+                        }
+                        else {
+                            Toast.makeText(MainBottomActivity.this,"请扫描生产看板或者领料看板",Toast.LENGTH_LONG).show();
+                        }
+
                     } else {
-                        kanban.setBoardNo(content);
-                        fragmentOne.kanbano.setText(content);
-                        loadData(content, MainBottomActivity.this.type);
+                        if (content.startsWith("S") || content.startsWith("L"))
+                        {
+                            kanban.setBoardNo(content);
+                            fragmentOne.kanbano.setText(content);
+                            loadData(content, MainBottomActivity.this.type);
+                        }
+                        else {
+                            Toast.makeText(MainBottomActivity.this,"请扫描生产看板或者领料看板",Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 }
             } else {
@@ -1027,6 +1044,30 @@ public class MainBottomActivity extends BaseActivity {
         }
 
 
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
 
